@@ -84,10 +84,10 @@ export const useLLM = ({ onStreamStart, onStream, onStreamEnd }: TUseLLM) => {
       return;
     }
 
-    const apiKey = "";
+    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
     const model = new ChatOpenAI({
       modelName: "gpt-3.5-turbo",
-      openAIApiKey: apiKey || process.env.PUBLIC_OPENAI_API_KEY,
+      openAIApiKey: apiKey,
     });
 
     const newMessageId = v4();
