@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 import { TStreamProps, useLLM } from "@/hooks/use-llm";
 import { TChatSession, useChatSession } from "@/hooks/use-chat-session";
@@ -12,10 +13,14 @@ export type TChatProvider = {
 };
 
 export const ChatProvider = ({ children }: TChatProvider) => {
-  const { getSessions, createNewSession } = useChatSession();
+  const { getSessions, createNewSession, getSessionById } = useChatSession();
+  const { sessionId } = useParams();
   const [sessions, setSessions] = useState<TChatSession[]>([]);
   const [isSessionLoading, setIsSessionLoading] = useState<boolean>(true);
   const [lastStream, setLastStream] = useState<TStreamProps>();
+  const [currentSession, setCurrentSession] = useState<
+    TChatSession | undefined
+  >();
 
   const { runModel } = useLLM({
     onStreamStart: () => {
@@ -39,9 +44,23 @@ export const ChatProvider = ({ children }: TChatProvider) => {
   };
 
   const createSession = async () => {
-    await createNewSession();
+    const newSession = await createNewSession();
     fetchSessions();
+    return newSession;
   };
+
+  const fetchSession = async () => {
+    getSessionById(sessionId!.toString()).then((session) => {
+      setCurrentSession(session);
+    });
+  };
+
+  useEffect(() => {
+    if (!sessionId) {
+      return;
+    }
+    fetchSession();
+  }, [sessionId]);
 
   useEffect(() => {
     setIsSessionLoading(true);
@@ -59,8 +78,9 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         refetchSessions,
         isSessionLoading,
         createSession,
-        runModel,
+        currentSession,
         lastStream,
+        runModel,
       }}
     >
       {children}
