@@ -1,55 +1,75 @@
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import Avatar from "boring-avatars";
+import { useEffect, useRef } from "react";
 
 import { useMarkdown } from "@/hooks/use-mdx";
 import { useChatContext } from "@/context/chat/context";
-import { TChatSession, useChatSession } from "@/hooks/use-chat-session";
 
 export const ChatMessages = () => {
-  const { sessionId } = useParams();
-  const { lastStream } = useChatContext();
-  const [currentSession, setCurrentSession] = useState<
-    TChatSession | undefined
-  >();
-  const { getSessionById } = useChatSession();
+  const { lastStream, currentSession } = useChatContext();
   const { renderMarkdown } = useMarkdown();
-
-  const fetchSession = async () => {
-    getSessionById(sessionId!.toString()).then((session) => {
-      setCurrentSession(session);
-    });
-  };
-
-  useEffect(() => {
-    if (!sessionId) {
-      return;
-    }
-    fetchSession();
-  }, [sessionId]);
 
   useEffect(() => {
     if (!lastStream) {
-      fetchSession();
+      scrollToBottom();
     }
   }, [lastStream]);
 
   const isLastStreamBelongsToCurrentSession =
-    lastStream?.sessionId === sessionId;
+    lastStream?.sessionId === currentSession?.id;
+
+  const chatContainer = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    if (chatContainer.current) {
+      chatContainer.current.scrollTop = chatContainer.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentSession]);
+
+  const renderMessage = (
+    key: string,
+    humanMessage: string,
+    aiMessage: string
+  ) => {
+    return (
+      <div className="flex flex-col gap-1 items-start w-full" key={key}>
+        <div className="bg-black/30 rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4 border border-white/5">
+          <div className="w-8 h-8 rounded-full relative">
+            <Avatar
+              size={32}
+              name={humanMessage}
+              variant="marble"
+              colors={["#ffffff"]}
+            />
+            <p className="absolute text-zinc-900/70 font-bold inset-0 flex items-center justify-center">
+              {humanMessage.slice(0, 1).toUpperCase()}
+            </p>
+          </div>
+          <span className="pt-1.5">{humanMessage}</span>
+        </div>
+        <div className="bg-white/5 rounded-2xl p-4 w-full border border-white/5">
+          {renderMarkdown(aiMessage)}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div>
-      {currentSession?.messages.map((message) => (
-        <div key={message.id} className="p-2">
-          {message.rawHuman}
-          {renderMarkdown(message.rawAI)}
-        </div>
-      ))}
-      {isLastStreamBelongsToCurrentSession && (
-        <div className="p-2">
-          {lastStream?.props?.query}
-          {renderMarkdown(lastStream!.message)}
-        </div>
-      )}
+    <div
+      className="flex flex-col w-full items-center h-screen overflow-y-auto pt-[60px] pb-[200px]"
+      ref={chatContainer}
+    >
+      <div className="w-[600px] flex flex-col gap-8">
+        {currentSession?.messages.map((message) =>
+          renderMessage(message.id, message.rawHuman, message.rawAI)
+        )}
+        {isLastStreamBelongsToCurrentSession &&
+          lastStream?.props?.query &&
+          renderMessage("last", lastStream?.props?.query, lastStream?.message)}
+      </div>
     </div>
   );
 };

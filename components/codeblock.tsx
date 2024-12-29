@@ -23,16 +23,23 @@ export const CodeBlock = ({ lang, code }: codeBlockProps) => {
   }, [code, language]);
 
   return (
-    <div className="hljs-wrapper">
+    <div className="bg-black/20 rounded-2xl p-4">
       <div className="pl-4 pr-2 py-2 w-full flex justify-between items-center">
         <p>{language}</p>
-        <Button size={"sm"} onClick={() => code && copy(code)}>
+        <Button
+          size={"sm"}
+          variant={"secondary"}
+          onClick={() => code && copy(code)}
+        >
           {showCopied ? <CheckIcon /> : <CopyIcon />}
           {showCopied ? "Copied" : "Copy"}
         </Button>
       </div>
-      <pre className="hljs-pre">
-        <code className={`hljs language-${language}`} ref={ref} />
+      <pre className="w-full px-6 py-2">
+        <code
+          className={`hljs language-${language} whitespace-pre-wrap break-words overflow-x-auto w-full inline-block pr-[100%] text-sm`}
+          ref={ref}
+        />
       </pre>
     </div>
   );
