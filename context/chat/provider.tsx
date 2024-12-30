@@ -27,7 +27,6 @@ export const ChatProvider = ({ children }: TChatProvider) => {
     onStreamStart: () => {
       setError(undefined);
       setLastStream(undefined);
-      refetchSessions();
     },
     onStream: async (props) => {
       setLastStream(props);

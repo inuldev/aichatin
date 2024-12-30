@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { GearSix } from "@phosphor-icons/react";
 
 import { SettingsContext } from "./contex";
+import { ModelIcon } from "@/components/icons/model-icon";
 import { OpenAISettings } from "@/components/settings/openai";
+import { AnthropicSettings } from "@/components/settings/anthropic";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +23,7 @@ export type TSettingsProvider = {
 export type TSettingMenuItem = {
   name: string;
   key: string;
+  icon: () => React.ReactNode;
   component: React.ReactNode;
 };
 
@@ -34,16 +38,19 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
     {
       name: "Profile",
       key: "profile",
+      icon: () => <GearSix size={16} weight="bold" />,
       component: <div>Profile</div>,
     },
     {
       name: "Prompts",
       key: "prompts",
+      icon: () => <GearSix size={16} weight="bold" />,
       component: <div>Prompts</div>,
     },
     {
       name: "Roles",
       key: "roles",
+      icon: () => <GearSix size={16} weight="bold" />,
       component: <div>Roles</div>,
     },
   ];
@@ -52,16 +59,19 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
     {
       name: "OpenAI",
       key: "openai",
+      icon: () => <ModelIcon type="openai" size="md" />,
       component: <OpenAISettings />,
     },
     {
       name: "Anthropic",
       key: "anthropic",
-      component: <div>Anthropic</div>,
+      icon: () => <ModelIcon type="anthropic" size="md" />,
+      component: <AnthropicSettings />,
     },
     {
       name: "Gemini",
       key: "gemini",
+      icon: () => <ModelIcon type="gemini" size="md" />,
       component: <div>Gemini</div>,
     },
   ];
@@ -75,7 +85,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
       {children}
 
       <Dialog open={isSettingOpen} onOpenChange={setIsSettingOpen}>
-        <DialogContent className="min-w-[800px] min-h-[80px] flex flex-row overflow-hidden border border-white/5 p-0">
+        <DialogContent className="min-w-[800px] min-h-[80vh] flex flex-row overflow-hidden border border-white/5 p-0">
           <DialogTitle className="sr-only">Settings</DialogTitle>
           <DialogDescription className="sr-only">Settings</DialogDescription>
           <div className="w-[250px] bg-black/10 p-2 left-0 top-0 bottom-0 flex flex-col">
@@ -87,9 +97,10 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
                 key={menu.key}
                 variant={selectedMenu === menu.key ? "secondary" : "ghost"}
                 onClick={() => setSelectedMenu(menu.key)}
-                className="justify-start"
+                className="justify-start gap-3 px-3"
                 size={"default"}
               >
+                {menu.icon()}
                 {menu.name}
               </Button>
             ))}
@@ -101,9 +112,10 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
                 key={menu.key}
                 variant={selectedMenu === menu.key ? "secondary" : "ghost"}
                 onClick={() => setSelectedMenu(menu.key)}
-                className="justify-start"
+                className="justify-start gap-3 px-3"
                 size={"default"}
               >
+                {menu.icon()}
                 {menu.name}
               </Button>
             ))}

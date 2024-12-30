@@ -1,10 +1,13 @@
 import Avatar from "boring-avatars";
 import { useEffect, useRef } from "react";
+import { useParams } from "next/navigation";
 
 import { useMarkdown } from "@/hooks/use-mdx";
 import { useChatContext } from "@/context/chat/context";
 
 export const ChatMessages = () => {
+  const { sessionId } = useParams();
+
   const { lastStream, currentSession, error } = useChatContext();
   const { renderMarkdown } = useMarkdown();
 
