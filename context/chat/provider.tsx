@@ -17,28 +17,29 @@ export const ChatProvider = ({ children }: TChatProvider) => {
   const { sessionId } = useParams();
   const [sessions, setSessions] = useState<TChatSession[]>([]);
   const [isSessionLoading, setIsSessionLoading] = useState<boolean>(true);
-  const [lastStream, setLastStream] = useState<TStreamProps>();
+  const [streamingMessage, setStreamingMessage] = useState<TStreamProps>();
   const [error, setError] = useState<string | undefined>();
   const [currentSession, setCurrentSession] = useState<
     TChatSession | undefined
   >();
 
   const { runModel } = useLLM({
-    onStreamStart: () => {
-      setError(undefined);
-      setLastStream(undefined);
+    onInit: async (props) => {
+      setStreamingMessage(props);
+    },
+    onStreamStart: async (props) => {
+      setStreamingMessage(props);
     },
     onStream: async (props) => {
-      setLastStream(props);
+      setStreamingMessage(props);
     },
-    onStreamEnd: () => {
+    onStreamEnd: async () => {
       fetchSessions().then(() => {
-        setLastStream(undefined);
+        setStreamingMessage(undefined);
       });
     },
-    onError: (error) => {
-      setError("An error occurred while running the model.");
-      console.error(error);
+    onError: async (error) => {
+      setStreamingMessage(error);
     },
   });
 
@@ -55,6 +56,9 @@ export const ChatProvider = ({ children }: TChatProvider) => {
   };
 
   const fetchSession = async () => {
+    if (!sessionId) {
+      return;
+    }
     getSessionById(sessionId!.toString()).then((session) => {
       setCurrentSession(session);
     });
@@ -72,6 +76,12 @@ export const ChatProvider = ({ children }: TChatProvider) => {
     fetchSessions();
   }, []);
 
+  useEffect(() => {
+    if (!streamingMessage) {
+      fetchSession();
+    }
+  }, [streamingMessage]);
+
   const refetchSessions = () => {
     fetchSessions();
   };
@@ -84,8 +94,9 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         isSessionLoading,
         createSession,
         currentSession,
-        lastStream,
+        streamingMessage,
         runModel,
+        error,
       }}
     >
       {children}

@@ -1,4 +1,3 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { v4 } from "uuid";
 import {
   ChatPromptTemplate,
@@ -6,30 +5,31 @@ import {
 } from "@langchain/core/prompts";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 
-import {
-  ModelType,
-  PromptProps,
-  TChatMessage,
-  useChatSession,
-} from "./use-chat-session";
+import { PromptProps, TChatMessage, useChatSession } from "./use-chat-session";
 import { usePreferences } from "./use-preferences";
+import { TModelKey, useModelList } from "./use-model-list";
+
 import { getInstruction, getRole } from "@/lib/prompts";
-import { useModelList } from "./use-model-list";
 
 export type TStreamProps = {
   props: PromptProps;
+  model: TModelKey;
   sessionId: string;
-  message: string;
+  message?: string;
+  loading?: boolean;
+  error?: string;
 };
 
 export type TUseLLM = {
-  onStreamStart: () => void;
+  onInit: (props: TStreamProps) => Promise<void>;
+  onStreamStart: (props: TStreamProps) => Promise<void>;
   onStream: (props: TStreamProps) => Promise<void>;
-  onStreamEnd: () => void;
-  onError: (error: any) => void;
+  onStreamEnd: (props: TStreamProps) => Promise<void>;
+  onError: (props: TStreamProps) => Promise<void>;
 };
 
 export const useLLM = ({
+  onInit,
   onStream,
   onStreamStart,
   onStreamEnd,
@@ -96,8 +96,9 @@ export const useLLM = ({
 
     const preferences = await getPreferences();
     const modelKey = preferences.defaultModel;
-    const selectedModel = getModelByKey(modelKey);
+    onInit({ props, model: modelKey, sessionId, loading: true });
 
+    const selectedModel = getModelByKey(modelKey);
     if (!selectedModel) {
       throw new Error("Model not found");
     }
@@ -105,7 +106,13 @@ export const useLLM = ({
     const apiKey = await getApiKey(selectedModel?.baseModel);
 
     if (!apiKey) {
-      onError("API Key not found");
+      onError({
+        props,
+        model: modelKey,
+        sessionId,
+        error: "API key not found",
+        loading: false,
+      });
       return;
     }
 
@@ -118,19 +125,41 @@ export const useLLM = ({
       );
 
       const model = await createInstance(selectedModel, apiKey);
-      const stream = await model.stream(formattedChatPrompt);
+
+      const stream = await model.stream(formattedChatPrompt, {
+        options: {
+          stream: true,
+        },
+      });
+
+      if (!stream) {
+        return;
+      }
 
       let streamedMessage = "";
-      onStreamStart();
+
+      onStreamStart({
+        props,
+        model: modelKey,
+        sessionId,
+        message: streamedMessage,
+        loading: true,
+      });
 
       for await (const chunk of stream) {
         streamedMessage += chunk.content;
-        onStream({ props, sessionId, message: streamedMessage });
+        onStream({
+          props,
+          sessionId,
+          message: streamedMessage,
+          model: modelKey,
+          loading: true,
+        });
       }
 
       const chatMessage = {
         id: newMessageId,
-        model: ModelType.GPT3,
+        model: selectedModel.key,
         human: new HumanMessage(props.query),
         ai: new AIMessage(streamedMessage),
         rawHuman: props.query,
@@ -139,10 +168,22 @@ export const useLLM = ({
       };
 
       addMessageToSession(sessionId, chatMessage).then(() => {
-        onStreamEnd();
+        onStreamEnd({
+          props,
+          model: modelKey,
+          sessionId,
+          message: streamedMessage,
+          loading: false,
+        });
       });
-    } catch (e) {
-      onError(e);
+    } catch (e: any) {
+      onError({
+        props,
+        model: modelKey,
+        sessionId,
+        error: e?.error?.error?.message || e?.error?.message,
+        loading: false,
+      });
     }
   };
 

@@ -17,13 +17,13 @@ export const CodeBlock = ({ lang, code }: codeBlockProps) => {
 
   useEffect(() => {
     if (ref?.current && code) {
-      const highlightedCode = hljs.highlight(language, code).value;
+      const highlightedCode = hljs.highlight(code, { language }).value;
       ref.current.innerHTML = highlightedCode;
     }
   }, [code, language]);
 
   return (
-    <div className="bg-black/20 rounded-2xl p-4">
+    <div className="bg-black/20 rounded-2xl p-4 w-full">
       <div className="pl-4 pr-2 py-2 w-full flex justify-between items-center">
         <p>{language}</p>
         <Button
@@ -35,7 +35,7 @@ export const CodeBlock = ({ lang, code }: codeBlockProps) => {
           {showCopied ? "Copied" : "Copy"}
         </Button>
       </div>
-      <pre className="w-full px-6 py-2">
+      <pre className="w-full">
         <code
           className={`hljs language-${language} whitespace-pre-wrap break-words overflow-x-auto w-full inline-block pr-[100%] text-sm`}
           ref={ref}

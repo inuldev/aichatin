@@ -6,6 +6,7 @@ import { GearSix } from "@phosphor-icons/react";
 import { SettingsContext } from "./contex";
 import { ModelIcon } from "@/components/icons/model-icon";
 import { OpenAISettings } from "@/components/settings/openai";
+import { GeminiSettings } from "@/components/settings/gemini";
 import { AnthropicSettings } from "@/components/settings/anthropic";
 
 import { Button } from "@/components/ui/button";
@@ -72,7 +73,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
       name: "Gemini",
       key: "gemini",
       icon: () => <ModelIcon type="gemini" size="md" />,
-      component: <div>Gemini</div>,
+      component: <GeminiSettings />,
     },
   ];
 

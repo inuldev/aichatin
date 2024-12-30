@@ -14,8 +14,8 @@ export const models = [
   "claude-3-opus-20240229",
   "claude-3-sonnet-20240229",
   "claude-3-haiku-20240307",
-  "gemini-1.5-pro-latest",
   "gemini-pro",
+  "gemini-1.5-pro-latest",
 ];
 
 export type TModelKey = (typeof models)[number] | string;
@@ -35,16 +35,20 @@ export const useModelList = () => {
       case "openai":
         return new ChatOpenAI({
           model: model.key,
+          streaming: true,
           apiKey,
         });
       case "anthropic":
         return new ChatAnthropic({
           model: model.key,
+          streaming: true,
+          anthropicApiUrl: `${window.location.origin}/api/anthropic`,
           apiKey,
         });
       case "gemini":
         return new ChatGoogleGenerativeAI({
           model: model.key,
+          streaming: true,
           apiKey,
         });
       default:
@@ -77,35 +81,35 @@ export const useModelList = () => {
     {
       name: "Claude 3 Opus",
       key: "claude-3-opus-20240229",
-      tokens: 200000,
+      tokens: 10000,
       icon: () => <ModelIcon type="anthropic" size="md" />,
       baseModel: "anthropic",
     },
     {
       name: "Claude 3 Sonnet",
       key: "claude-3-sonnet-20240229",
-      tokens: 200000,
+      tokens: 20000,
       icon: () => <ModelIcon type="anthropic" size="md" />,
       baseModel: "anthropic",
     },
     {
       name: "Claude 3 Haiku",
       key: "claude-3-haiku-20240307",
-      tokens: 200000,
+      tokens: 20000,
       icon: () => <ModelIcon type="anthropic" size="md" />,
       baseModel: "anthropic",
     },
     {
-      name: "Gemini Pro 1.5",
-      key: "gemini-1.5-pro-latest",
-      tokens: 200000,
+      name: "Gemini Pro",
+      key: "gemini-pro",
+      tokens: 20000,
       icon: () => <ModelIcon type="gemini" size="md" />,
       baseModel: "gemini",
     },
     {
-      name: "Gemini Pro",
-      key: "gemini-pro",
-      tokens: 200000,
+      name: "Gemini Pro 1.5",
+      key: "gemini-1.5-pro-latest",
+      tokens: 20000,
       icon: () => <ModelIcon type="gemini" size="md" />,
       baseModel: "gemini",
     },

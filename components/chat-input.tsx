@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Command, Plus, Sparkle } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
@@ -12,12 +13,33 @@ import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
+const slideUpVariant = {
+  initial: { y: 50, opacity: 0 },
+  animate: {
+    y: 0,
+    opacity: 1,
+    transition: { duration: 0.5, ease: "easeInOut" },
+  },
+};
+
+const zoomVariant = {
+  initial: { scale: 0.8, opacity: 0 },
+  animate: {
+    scale: 1,
+    opacity: 1,
+    transition: { duration: 0.5, ease: "easeInOut", delay: 1 },
+  },
+};
+
 export const ChatInput = () => {
   const { sessionId } = useParams();
   const [inputValue, setInputValue] = useState("");
-  const { runModel, currentSession, createSession } = useChatContext();
+  const { runModel, currentSession, createSession, streamingMessage } =
+    useChatContext();
   const router = useRouter();
-  const isNewSession = !currentSession?.messages?.length;
+
+  const isNewSession =
+    !currentSession?.messages?.length && !streamingMessage?.loading;
 
   const examples = [
     "What is quantum computing?",
@@ -52,32 +74,46 @@ export const ChatInput = () => {
   return (
     <div
       className={cn(
-        "w-full flex flex-col items-center justify-center absolute bottom-0 px-4 pb-4 pt-16 bg-gradient-to-t from-white dark:from-zinc-800 dark:to-transparent from-70% to-white/10 left-0 right-0 gap-4",
+        "w-full flex flex-col items-center justify-center absolute bottom-0 px-4 pb-4 pt-16 bg-gradient-to-t from-white dark:from-zinc-800 dark:to-transparent from-70% to-white/10 left-0 right-0 gap-6",
         isNewSession && "top-0"
       )}
     >
       {isNewSession && (
-        <div className="flex flex-col items-center h-[200px] gap-2">
-          <div className="text-xl w-16 h-16 border bg-black/10 border-white/10 rounded-full flex items-center justify-center">
-            <Sparkle size={24} weight="bold" className="text-green-400" />
-          </div>
-          <h1 className="text-lg tracking-tight text-zinc-500">
-            How can i help you today?
-          </h1>
+        <div className="flex flex-row items-center w-[680px] justify-start gap-2">
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { duration: 1 } }}
+            className="text-2xl font-semibold tracking-tight text-zinc-100"
+          >
+            <span className="text-zinc-400">Hello!👋</span>
+            <br />
+            What can I help you with?🤖
+          </motion.h1>
         </div>
       )}
-      <div className="flex flex-row items-center px-3 bg-white/10 w-[700px] rounded-2xl">
-        <Button
-          size={"icon"}
-          className="min-w-8 h-8"
-          onClick={() => {
-            createSession().then((session) => {
-              router.push(`/chat/${session.id}`);
-            });
-          }}
-        >
-          <Plus size={16} weight="bold" />
-        </Button>
+      <motion.div
+        variants={slideUpVariant}
+        initial="initial"
+        animate="animate"
+        className="flex flex-row items-center px-3 bg-white/10 w-[700px] rounded-2xl"
+      >
+        {isNewSession ? (
+          <div className="min-w-8 h-8 flex justify-center items-center">
+            <Sparkle size={24} weight="fill" />
+          </div>
+        ) : (
+          <Button
+            size={"icon"}
+            className="min-w-8 h-8"
+            onClick={() => {
+              createSession().then((session) => {
+                router.push(`/chat/${session.id}`);
+              });
+            }}
+          >
+            <Plus size={16} weight="bold" />
+          </Button>
+        )}
         <Input
           value={inputValue}
           ref={inputRef}
@@ -89,7 +125,8 @@ export const ChatInput = () => {
         <Badge>
           <Command size={14} weight="bold" />K
         </Badge>
-      </div>
+      </motion.div>
+
       {isNewSession && (
         <div className="grid grid-cols-2 gap-2 w-[700px]">
           {examples?.map((example, index) => (

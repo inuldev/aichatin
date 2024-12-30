@@ -1,14 +1,15 @@
 import { get, set } from "idb-keyval";
 import { v4 } from "uuid";
 
+import { TModelKey } from "./use-model-list";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 
-export enum ModelType {
-  GPT3 = "gpt-3",
-  GPT4 = "gpt-4",
-  CLAUDE2 = "claude-2",
-  CLAUDE3 = "claude-3",
-}
+// export enum ModelType {
+//   GPT3 = "gpt-3",
+//   GPT4 = "gpt-4",
+//   CLAUDE2 = "claude-2",
+//   CLAUDE3 = "claude-3",
+// }
 
 export enum PromptType {
   ask = "ask",
@@ -37,7 +38,7 @@ export type PromptProps = {
 
 export type TChatMessage = {
   id: string;
-  model: ModelType;
+  model: TModelKey;
   human: HumanMessage;
   ai: AIMessage;
   rawHuman: string;
