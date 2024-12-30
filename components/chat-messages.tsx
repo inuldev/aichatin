@@ -5,7 +5,7 @@ import { useMarkdown } from "@/hooks/use-mdx";
 import { useChatContext } from "@/context/chat/context";
 
 export const ChatMessages = () => {
-  const { lastStream, currentSession } = useChatContext();
+  const { lastStream, currentSession, error } = useChatContext();
   const { renderMarkdown } = useMarkdown();
 
   useEffect(() => {
@@ -37,18 +37,8 @@ export const ChatMessages = () => {
     return (
       <div className="flex flex-col gap-1 items-start w-full" key={key}>
         <div className="bg-black/30 rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4 border border-white/5">
-          <div className="w-8 h-8 rounded-full relative">
-            <Avatar
-              size={32}
-              name={humanMessage}
-              variant="marble"
-              colors={["#ffffff"]}
-            />
-            <p className="absolute text-zinc-900/70 font-bold inset-0 flex items-center justify-center">
-              {humanMessage.slice(0, 1).toUpperCase()}
-            </p>
-          </div>
-          <span className="pt-1.5">{humanMessage}</span>
+          <Avatar name="Chat" />
+          <span className="pt-1 leading-5">{humanMessage}</span>
         </div>
         <div className="bg-white/5 rounded-2xl p-4 w-full border border-white/5">
           {renderMarkdown(aiMessage)}
@@ -69,6 +59,11 @@ export const ChatMessages = () => {
         {isLastStreamBelongsToCurrentSession &&
           lastStream?.props?.query &&
           renderMessage("last", lastStream?.props?.query, lastStream?.message)}
+        {error && (
+          <div className="text-red-500">
+            {renderMessage("error", "Ahh!", error)}
+          </div>
+        )}
       </div>
     </div>
   );

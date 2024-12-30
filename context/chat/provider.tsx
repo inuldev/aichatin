@@ -18,12 +18,14 @@ export const ChatProvider = ({ children }: TChatProvider) => {
   const [sessions, setSessions] = useState<TChatSession[]>([]);
   const [isSessionLoading, setIsSessionLoading] = useState<boolean>(true);
   const [lastStream, setLastStream] = useState<TStreamProps>();
+  const [error, setError] = useState<string | undefined>();
   const [currentSession, setCurrentSession] = useState<
     TChatSession | undefined
   >();
 
   const { runModel } = useLLM({
     onStreamStart: () => {
+      setError(undefined);
       setLastStream(undefined);
       refetchSessions();
     },
@@ -34,6 +36,10 @@ export const ChatProvider = ({ children }: TChatProvider) => {
       fetchSessions().then(() => {
         setLastStream(undefined);
       });
+    },
+    onError: (error) => {
+      setError("An error occurred while running the model.");
+      console.error(error);
     },
   });
 

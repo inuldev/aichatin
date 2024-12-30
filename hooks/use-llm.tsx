@@ -12,6 +12,7 @@ import {
   TChatMessage,
   useChatSession,
 } from "./use-chat-session";
+import { usePreferences } from "./use-preferences";
 import { getInstruction, getRole } from "@/lib/prompts";
 
 export type TStreamProps = {
@@ -24,10 +25,17 @@ export type TUseLLM = {
   onStreamStart: () => void;
   onStream: (props: TStreamProps) => Promise<void>;
   onStreamEnd: () => void;
+  onError: (error: any) => void;
 };
 
-export const useLLM = ({ onStreamStart, onStream, onStreamEnd }: TUseLLM) => {
+export const useLLM = ({
+  onStreamStart,
+  onStream,
+  onStreamEnd,
+  onError,
+}: TUseLLM) => {
   const { getSessionById, addMessageToSession } = useChatSession();
+  const { getApiKey } = usePreferences();
 
   const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
     const messageHistory = history;
@@ -84,42 +92,46 @@ export const useLLM = ({ onStreamStart, onStream, onStreamEnd }: TUseLLM) => {
       return;
     }
 
-    const apiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-    const model = new ChatOpenAI({
-      modelName: "gpt-3.5-turbo",
-      openAIApiKey: apiKey,
-    });
+    const apiKey = await getApiKey("openai");
+    try {
+      const model = new ChatOpenAI({
+        modelName: "gpt-3.5-turbo",
+        openAIApiKey: apiKey,
+      });
 
-    const newMessageId = v4();
-    const formattedChatPrompt = await preparePrompt(
-      props,
-      currentSession?.messages || []
-    );
+      const newMessageId = v4();
+      const formattedChatPrompt = await preparePrompt(
+        props,
+        currentSession?.messages || []
+      );
 
-    const stream = await model.stream(formattedChatPrompt);
+      const stream = await model.stream(formattedChatPrompt);
 
-    let streamedMessage = "";
+      let streamedMessage = "";
 
-    onStreamStart();
+      onStreamStart();
 
-    for await (const chunk of stream) {
-      streamedMessage += chunk.content;
-      onStream({ props, sessionId, message: streamedMessage });
+      for await (const chunk of stream) {
+        streamedMessage += chunk.content;
+        onStream({ props, sessionId, message: streamedMessage });
+      }
+
+      const chatMessage = {
+        id: newMessageId,
+        model: ModelType.GPT3,
+        human: new HumanMessage(props.query),
+        ai: new AIMessage(streamedMessage),
+        rawHuman: props.query,
+        rawAI: streamedMessage,
+        props,
+      };
+
+      addMessageToSession(sessionId, chatMessage).then(() => {
+        onStreamEnd();
+      });
+    } catch (e) {
+      onError(e);
     }
-
-    const chatMessage = {
-      id: newMessageId,
-      model: ModelType.GPT3,
-      human: new HumanMessage(props.query),
-      ai: new AIMessage(streamedMessage),
-      rawHuman: props.query,
-      rawAI: streamedMessage,
-      props,
-    };
-
-    addMessageToSession(sessionId, chatMessage).then(() => {
-      onStreamEnd();
-    });
   };
 
   return { runModel };

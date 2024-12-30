@@ -88,6 +88,7 @@ export const ChatInput = () => {
           value={inputValue}
           ref={inputRef}
           onChange={(e) => setInputValue(e.currentTarget.value)}
+          variant={"ghost"}
           onKeyDown={handleKeyDown}
           placeholder="Ask me anything..."
         />
