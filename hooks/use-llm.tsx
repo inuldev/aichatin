@@ -1,4 +1,5 @@
 import { v4 } from "uuid";
+import moment from "moment";
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
@@ -157,7 +158,7 @@ export const useLLM = ({
         });
       }
 
-      const chatMessage = {
+      const chatMessage: TChatMessage = {
         id: newMessageId,
         model: selectedModel.key,
         human: new HumanMessage(props.query),
@@ -165,6 +166,7 @@ export const useLLM = ({
         rawHuman: props.query,
         rawAI: streamedMessage,
         props,
+        createdAt: moment().toISOString(),
       };
 
       addMessageToSession(sessionId, chatMessage).then(() => {

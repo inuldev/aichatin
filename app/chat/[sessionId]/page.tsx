@@ -1,10 +1,11 @@
 "use client";
 
-import Avatar from "boring-avatars";
 import { useParams } from "next/navigation";
 import { DotsThree } from "@phosphor-icons/react";
 
 import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
+
 import { ChatInput } from "@/components/chat-input";
 import { useSettings } from "@/context/settings/contex";
 import { ModelSelect } from "@/components/model-select";
@@ -24,7 +25,7 @@ const ChatSessionPage = () => {
         <p className="p-2 text-sm text-zinc-500">AIchatIn</p>
         <div className="flex flex-row gap-2 items-center">
           <ModelSelect />
-          <Avatar name="Chat" />
+          <Avatar name="Chat" size={"sm"} />
           <Button variant={"secondary"} size={"icon"} onClick={open}>
             <DotsThree size={20} weight="bold" />
           </Button>

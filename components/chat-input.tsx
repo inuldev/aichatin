@@ -2,15 +2,14 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { Command, Plus, Sparkle } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
+import { ArrowElbowDownLeft, Plus, Sparkle } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
 import { useChatContext } from "@/context/chat/context";
 import { PromptType, RoleType } from "@/hooks/use-chat-session";
 
 import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 
 const slideUpVariant = {
@@ -122,9 +121,9 @@ export const ChatInput = () => {
           onKeyDown={handleKeyDown}
           placeholder="Ask me anything..."
         />
-        <Badge>
-          <Command size={14} weight="bold" />K
-        </Badge>
+        <div className="min-w-8 h-8 flex justify-center items-center">
+          <ArrowElbowDownLeft size={16} weight="bold" />K
+        </div>
       </motion.div>
 
       {isNewSession && (

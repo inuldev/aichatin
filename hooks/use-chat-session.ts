@@ -3,13 +3,7 @@ import { v4 } from "uuid";
 
 import { TModelKey } from "./use-model-list";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
-
-// export enum ModelType {
-//   GPT3 = "gpt-3",
-//   GPT4 = "gpt-4",
-//   CLAUDE2 = "claude-2",
-//   CLAUDE3 = "claude-3",
-// }
+import moment from "moment";
 
 export enum PromptType {
   ask = "ask",
@@ -45,6 +39,7 @@ export type TChatMessage = {
   rawAI: string;
   props?: PromptProps;
   createdAt?: string;
+  updatedAt?: string;
 };
 
 export type TChatSession = {
@@ -92,11 +87,13 @@ export const useChatSession = () => {
             ...session,
             messages: [...session.messages, chatMessage],
             title: chatMessage.rawHuman,
+            updatedAt: moment().toISOString(),
           };
         }
         return {
           ...session,
           messages: [...session.messages, chatMessage],
+          updatedAt: moment().toISOString(),
         };
       }
       return session;
@@ -106,10 +103,10 @@ export const useChatSession = () => {
   };
 
   const createNewSession = async () => {
-    const sessions = await getSessions();
+    const sessions = (await getSessions()) || [];
 
-    const latestSession = sessions?.[0];
-    if (latestSession?.messages?.length === 0) {
+    const latestSession = sortSessions(sessions, "createdAt")?.[0];
+    if (latestSession && latestSession?.messages?.length) {
       return latestSession;
     }
 
@@ -117,7 +114,7 @@ export const useChatSession = () => {
       id: v4(),
       messages: [],
       title: "Untitled",
-      createdAt: new Date().toISOString(),
+      createdAt: moment().toISOString(),
     };
 
     const newSessions = [...sessions, newSession];
@@ -143,6 +140,17 @@ export const useChatSession = () => {
     await set("chat-sessions", newSessions);
   };
 
+  const clearSessions = async () => {
+    await set("chat-sessions", []);
+  };
+
+  const sortSessions = (
+    sessions: TChatSession[],
+    sortBy: "createdAt" | "updatedAt"
+  ) => {
+    return sessions.sort((a, b) => moment(b[sortBy]).diff(moment(a[sortBy])));
+  };
+
   return {
     getSessions,
     setSession,
@@ -151,5 +159,7 @@ export const useChatSession = () => {
     addMessageToSession,
     updateSession,
     createNewSession,
+    clearSessions,
+    sortSessions,
   };
 };

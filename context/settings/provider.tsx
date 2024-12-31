@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GearSix } from "@phosphor-icons/react";
+import { ChatCentered, GearSix, UserCircle } from "@phosphor-icons/react";
 
 import { SettingsContext } from "./contex";
 import { ModelIcon } from "@/components/icons/model-icon";
@@ -37,21 +37,21 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
 
   const settingMenu: TSettingMenuItem[] = [
     {
-      name: "Profile",
-      key: "profile",
+      name: "Common",
+      key: "common",
       icon: () => <GearSix size={16} weight="bold" />,
-      component: <div>Profile</div>,
+      component: <div>Common</div>,
     },
     {
       name: "Prompts",
       key: "prompts",
-      icon: () => <GearSix size={16} weight="bold" />,
+      icon: () => <ChatCentered size={16} weight="bold" />,
       component: <div>Prompts</div>,
     },
     {
       name: "Roles",
       key: "roles",
-      icon: () => <GearSix size={16} weight="bold" />,
+      icon: () => <UserCircle size={16} weight="bold" />,
       component: <div>Roles</div>,
     },
   ];

@@ -7,23 +7,20 @@ import { ModelIcon } from "@/components/icons/model-icon";
 
 export type TBaseModel = "openai" | "anthropic" | "gemini";
 
-export const models = [
-  "gpt-4-turbo",
-  "gpt-3.5-turbo",
-  "gpt-3.5-turbo-0125",
-  "claude-3-opus-20240229",
-  "claude-3-sonnet-20240229",
-  "claude-3-haiku-20240307",
-  "gemini-pro",
-  "gemini-1.5-pro-latest",
-];
-
-export type TModelKey = (typeof models)[number] | string;
+export type TModelKey =
+  | "gpt-4o"
+  | "gpt-4-turbo"
+  | "gpt-3.5-turbo"
+  | "gpt-3.5-turbo-0125"
+  | "claude-3-opus-20240229"
+  | "claude-3-sonnet-20240229"
+  | "claude-3-haiku-20240307"
+  | "gemini-pro"
+  | "gemini-1.5-pro-latest";
 
 export type TModel = {
   name: string;
   key: TModelKey;
-  isNew?: boolean;
   icon: () => JSX.Element;
   tokens: number;
   baseModel: TBaseModel;
@@ -57,6 +54,13 @@ export const useModelList = () => {
   };
 
   const models: TModel[] = [
+    {
+      name: "GPT 4o",
+      key: "gpt-4o",
+      tokens: 128000,
+      icon: () => <ModelIcon type="gpt4" size="md" />,
+      baseModel: "openai",
+    },
     {
       name: "GPT4 Turbo",
       key: "gpt-4-turbo",

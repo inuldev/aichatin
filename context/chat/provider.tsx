@@ -13,7 +13,8 @@ export type TChatProvider = {
 };
 
 export const ChatProvider = ({ children }: TChatProvider) => {
-  const { getSessions, createNewSession, getSessionById } = useChatSession();
+  const { getSessions, createNewSession, getSessionById, clearSessions } =
+    useChatSession();
   const { sessionId } = useParams();
   const [sessions, setSessions] = useState<TChatSession[]>([]);
   const [isSessionLoading, setIsSessionLoading] = useState<boolean>(true);
@@ -47,6 +48,12 @@ export const ChatProvider = ({ children }: TChatProvider) => {
     const sessions = await getSessions();
     setSessions(sessions);
     setIsSessionLoading(false);
+  };
+
+  const clearChatSessions = async () => {
+    clearSessions().then(() => {
+      setSessions([]);
+    });
   };
 
   const createSession = async () => {
@@ -93,10 +100,11 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         refetchSessions,
         isSessionLoading,
         createSession,
-        currentSession,
-        streamingMessage,
         runModel,
         error,
+        currentSession,
+        streamingMessage,
+        clearChatSessions,
       }}
     >
       {children}
