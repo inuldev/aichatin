@@ -1,5 +1,6 @@
 "use client";
 
+import moment from "moment";
 import { useEffect, useState } from "react";
 import { Chat, Eraser, Plus } from "@phosphor-icons/react";
 
@@ -97,6 +98,9 @@ export const FiltersProvider = ({ children }: TFiltersProvider) => {
                   className="text-zinc-500 flex-shrink-0"
                 />
                 <span>{session.title}</span>
+                <span className="pl-4 text-xs dark:text-zinc-700 flex-shrink-0">
+                  {moment(session.createdAt).fromNow(true)}
+                </span>
               </CommandItem>
             ))}
           </CommandGroup>

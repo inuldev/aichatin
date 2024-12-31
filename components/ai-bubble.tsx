@@ -54,24 +54,26 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
           {modelForMessage?.icon()}
           {modelForMessage?.name}
         </motion.p>
-        <div className="flex flex-row gap-1">
-          <Button variant={"ghost"} size={"icon"}>
-            <BookmarkSimple size={16} weight="regular" />
-          </Button>
-          <Button variant={"ghost"} size={"icon"} onClick={handleCopyContent}>
-            {showCopied ? (
-              <Check size={16} weight="regular" />
-            ) : (
-              <Copy size={16} weight="regular" />
-            )}
-          </Button>
-          <Button variant={"ghost"} size={"icon"}>
-            <ArrowClockwise size={16} weight="regular" />
-          </Button>
-          <Button variant={"ghost"} size={"icon"}>
-            <TrashSimple size={16} weight="regular" />
-          </Button>
-        </div>
+        {!loading && (
+          <div className="flex flex-row gap-1">
+            <Button variant={"ghost"} size={"icon"}>
+              <BookmarkSimple size={16} weight="regular" />
+            </Button>
+            <Button variant={"ghost"} size={"icon"} onClick={handleCopyContent}>
+              {showCopied ? (
+                <Check size={16} weight="regular" />
+              ) : (
+                <Copy size={16} weight="regular" />
+              )}
+            </Button>
+            <Button variant={"ghost"} size={"icon"}>
+              <ArrowClockwise size={16} weight="regular" />
+            </Button>
+            <Button variant={"ghost"} size={"icon"}>
+              <TrashSimple size={16} weight="regular" />
+            </Button>
+          </div>
+        )}
       </div>
     </motion.div>
   );

@@ -3,14 +3,24 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowElbowDownLeft, Plus, Sparkle } from "@phosphor-icons/react";
+import {
+  ArrowElbowDownLeft,
+  Microphone,
+  Plus,
+  StarFour,
+  StopCircle,
+  X,
+} from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
 import { useChatContext } from "@/context/chat/context";
 import { PromptType, RoleType } from "@/hooks/use-chat-session";
+import { useRecordVoice } from "@/hooks/use-record-voice";
 
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import Spinner from "./ui/loading-spinner";
+import { AudioWaveSpinner } from "./ui/audio-wave";
 
 const slideUpVariant = {
   initial: { y: 50, opacity: 0 },
@@ -36,6 +46,8 @@ export const ChatInput = () => {
   const { runModel, currentSession, createSession, streamingMessage } =
     useChatContext();
   const router = useRouter();
+  const { startRecording, stopRecording, recording, text, transcribing } =
+    useRecordVoice();
 
   const isNewSession =
     !currentSession?.messages?.length && !streamingMessage?.loading;
@@ -43,8 +55,8 @@ export const ChatInput = () => {
   const examples = [
     "What is quantum computing?",
     "What are qubits?",
-    "What is GDP of Wakanda?",
-    "What is multi planetary launch system?",
+    "What is GDP of Indonesia?",
+    "What is multi planetary ideology?",
   ];
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,6 +82,21 @@ export const ChatInput = () => {
     }
   };
 
+  useEffect(() => {
+    if (text) {
+      setInputValue(text);
+      runModel(
+        {
+          role: RoleType.assistant,
+          type: PromptType.ask,
+          query: text,
+        },
+        sessionId!.toString()
+      );
+      setInputValue("");
+    }
+  }, [text]);
+
   return (
     <div
       className={cn(
@@ -86,7 +113,7 @@ export const ChatInput = () => {
           >
             <span className="text-zinc-400">Hello!👋</span>
             <br />
-            What can I help you with?🤖
+            How can I help you with?✨
           </motion.h1>
         </div>
       )}
@@ -94,15 +121,16 @@ export const ChatInput = () => {
         variants={slideUpVariant}
         initial="initial"
         animate="animate"
-        className="flex flex-row items-center px-3 bg-white/10 w-[700px] rounded-2xl"
+        className="flex flex-row items-center px-3 h-14 gap-0 bg-white/10 w-[700px] rounded-2xl"
       >
         {isNewSession ? (
           <div className="min-w-8 h-8 flex justify-center items-center">
-            <Sparkle size={24} weight="fill" />
+            <StarFour size={24} weight="fill" />
           </div>
         ) : (
           <Button
             size={"icon"}
+            variant={"ghost"}
             className="min-w-8 h-8"
             onClick={() => {
               createSession().then((session) => {
@@ -110,7 +138,7 @@ export const ChatInput = () => {
               });
             }}
           >
-            <Plus size={16} weight="bold" />
+            <Plus size={20} weight="bold" />
           </Button>
         )}
         <Input
@@ -121,8 +149,45 @@ export const ChatInput = () => {
           onKeyDown={handleKeyDown}
           placeholder="Ask me anything..."
         />
+        {recording ? (
+          <div className="bg-black/50 rounded-xl px-2 py-1 h-10 flex flex-row items-center">
+            <AudioWaveSpinner />
+            <Button
+              variant={"ghost"}
+              size={"icon"}
+              onClick={() => stopRecording()}
+              onTouchStart={startRecording}
+              onTouchEnd={stopRecording}
+            >
+              <StopCircle size={20} weight="fill" className="text-red-300" />
+            </Button>
+            <Button
+              variant={"ghost"}
+              size={"icon"}
+              onClick={() => stopRecording()}
+              onTouchStart={startRecording}
+              onTouchEnd={stopRecording}
+            >
+              <X size={20} weight="bold" />
+            </Button>
+          </div>
+        ) : transcribing ? (
+          <Spinner />
+        ) : (
+          <Button
+            size={"icon"}
+            variant={"ghost"}
+            className="min-w-8 h-8"
+            onClick={() => startRecording()}
+            onTouchStart={startRecording}
+            onTouchEnd={stopRecording}
+          >
+            <Microphone size={20} weight="bold" />
+          </Button>
+        )}
+
         <div className="min-w-8 h-8 flex justify-center items-center">
-          <ArrowElbowDownLeft size={16} weight="bold" />K
+          <ArrowElbowDownLeft size={16} weight="bold" />
         </div>
       </motion.div>
 
@@ -141,7 +206,7 @@ export const ChatInput = () => {
                   sessionId!.toString()
                 );
               }}
-              className="flex flex-row items-center text-sm py-3 px-4 bg-black/10 border border-white/5 text-zinc-400 w-full rounded-2xl hover:bg-black/20 hover:scale-[101%] cursor-pointer"
+              className="flex flex-row items-center text-sm py-3 px-4 border border-white/5 text-zinc-400 w-full rounded-2xl hover:bg-black/20 hover:scale-[101%] cursor-pointer"
             >
               {example}
             </div>
