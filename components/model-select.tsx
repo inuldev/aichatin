@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
+import { CheckCircle } from "@phosphor-icons/react";
 
+import { cn } from "@/lib/utils";
 import { usePreferences } from "@/hooks/use-preferences";
 import { TModelKey, useModelList } from "@/hooks/use-model-list";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
 export const ModelSelect = () => {
   const [selectedModel, setSelectedModel] = useState<TModelKey>("gpt-4-turbo");
@@ -27,34 +23,43 @@ export const ModelSelect = () => {
   }, []);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <Sheet>
+      <SheetTrigger>
         <Button
           variant="secondary"
-          className="pl-1 pr-3 gap-2 text-xs"
+          className="pl-1 pr-3 gap-1 text-xs"
           size="sm"
         >
           {activeModel?.icon()}
           {activeModel?.name}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 h-56 mr-2 mt-2 overflow-scroll">
-        <DropdownMenuLabel className="sr-only">Models</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      </SheetTrigger>
+      <SheetContent className="gap-0 overflow-hidden">
         {models.map((model) => (
-          <DropdownMenuItem
-            key={model.key}
-            onClick={() => {
-              setPreferences({ defaultModel: model.key }).then(() => {
-                setSelectedModel(model.key);
-              });
-            }}
-          >
-            {model.icon()}
-            {model.name}
-          </DropdownMenuItem>
+          <div className="p-2 max-h-[380px] overflow-y-auto">
+            <div
+              className={cn(
+                "flex flex-row items-center gap-2 px-2 justify-between text-sm hover:bg-white/5 cursor-pointer rounded-2xl"
+              )}
+              key={model.key}
+              onClick={() => {
+                setPreferences({ defaultModel: model.key }).then(() => {
+                  setSelectedModel(model.key);
+                });
+              }}
+            >
+              <div className="flex flex-row items-center gap-3">
+                {model.icon()} {model.name} {model.isNew && <Badge>New</Badge>}
+              </div>
+              <div className="flex flex-row items-center gap-3">
+                {activeModel?.key === model.key && (
+                  <CheckCircle size={24} weight="fill" />
+                )}
+              </div>
+            </div>
+          </div>
         ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SheetContent>
+    </Sheet>
   );
 };

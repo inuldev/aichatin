@@ -5,6 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowElbowDownLeft,
+  ClockClockwise,
+  Command,
   Microphone,
   Plus,
   StarFour,
@@ -18,9 +20,14 @@ import { PromptType, RoleType } from "@/hooks/use-chat-session";
 import { useRecordVoice } from "@/hooks/use-record-voice";
 
 import { Input } from "./ui/input";
+import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import Spinner from "./ui/loading-spinner";
 import { AudioWaveSpinner } from "./ui/audio-wave";
+
+import { ModelSelect } from "./model-select";
+import { useFilters } from "@/context/filter/context";
+import { LabelDivider } from "./ui/label-divider";
 
 const slideUpVariant = {
   initial: { y: 50, opacity: 0 },
@@ -43,6 +50,7 @@ const zoomVariant = {
 export const ChatInput = () => {
   const { sessionId } = useParams();
   const [inputValue, setInputValue] = useState("");
+  const { open: openFilters } = useFilters();
   const { runModel, currentSession, createSession, streamingMessage } =
     useChatContext();
   const router = useRouter();
@@ -53,10 +61,19 @@ export const ChatInput = () => {
     !currentSession?.messages?.length && !streamingMessage?.loading;
 
   const examples = [
-    "What is quantum computing?",
-    "What are qubits?",
-    "What is GDP of Indonesia?",
-    "What is multi planetary ideology?",
+    {
+      title: "What is the capital of Indonesia?",
+      prompt: "What is the capital of Indonesia?",
+    },
+    {
+      title: "What is quantum computing?",
+      prompt: "What is quantum computing?",
+    },
+    { title: "What are qubits?", prompt: "What are qubits?" },
+    {
+      title: "What is multi planetary ideology?",
+      prompt: "What is multi planetary ideology?",
+    },
   ];
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -117,100 +134,138 @@ export const ChatInput = () => {
           </motion.h1>
         </div>
       )}
-      <motion.div
-        variants={slideUpVariant}
-        initial="initial"
-        animate="animate"
-        className="flex flex-row items-center px-3 h-14 gap-0 bg-white/10 w-[700px] rounded-2xl"
-      >
-        {isNewSession ? (
-          <div className="min-w-8 h-8 flex justify-center items-center">
-            <StarFour size={24} weight="fill" />
-          </div>
-        ) : (
-          <Button
-            size={"icon"}
-            variant={"ghost"}
-            className="min-w-8 h-8"
-            onClick={() => {
-              createSession().then((session) => {
-                router.push(`/chat/${session.id}`);
-              });
-            }}
-          >
-            <Plus size={20} weight="bold" />
-          </Button>
-        )}
-        <Input
-          value={inputValue}
-          ref={inputRef}
-          onChange={(e) => setInputValue(e.currentTarget.value)}
-          variant={"ghost"}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask me anything..."
-        />
-        {recording ? (
-          <div className="bg-black/50 rounded-xl px-2 py-1 h-10 flex flex-row items-center">
-            <AudioWaveSpinner />
-            <Button
+      <div className="flex flex-col gap-1">
+        <motion.div
+          variants={slideUpVariant}
+          initial="initial"
+          animate="animate"
+          className="flex flex-col items-center bg-white/10 w-[700px] rounded-[1.25rem]"
+        >
+          <div className="flex flex-row items-center px-3 h-14 w-full gap-0">
+            {isNewSession ? (
+              <div className="min-w-8 h-8 flex justify-center items-center">
+                <StarFour size={24} weight="fill" />
+              </div>
+            ) : (
+              <Button
+                size={"icon"}
+                variant={"ghost"}
+                className="min-w-8 h-8"
+                onClick={() => {
+                  createSession().then((session) => {
+                    router.push(`/chat/${session.id}`);
+                  });
+                }}
+              >
+                <Plus size={20} weight="bold" />
+              </Button>
+            )}
+            <Input
+              value={inputValue}
+              ref={inputRef}
+              onChange={(e) => setInputValue(e.currentTarget.value)}
               variant={"ghost"}
-              size={"icon"}
-              onClick={() => stopRecording()}
-              onTouchStart={startRecording}
-              onTouchEnd={stopRecording}
-            >
-              <StopCircle size={20} weight="fill" className="text-red-300" />
-            </Button>
-            <Button
-              variant={"ghost"}
-              size={"icon"}
-              onClick={() => stopRecording()}
-              onTouchStart={startRecording}
-              onTouchEnd={stopRecording}
-            >
-              <X size={20} weight="bold" />
+              onKeyDown={handleKeyDown}
+              placeholder="Ask me anything..."
+              className="px-2"
+              autoComplete="off"
+              autoCapitalize="off"
+            />
+            {recording ? (
+              <div className="bg-black/50 rounded-xl px-2 py-1 h-10 flex flex-row items-center">
+                <AudioWaveSpinner />
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  onClick={() => stopRecording()}
+                  onTouchStart={startRecording}
+                  onTouchEnd={stopRecording}
+                >
+                  <StopCircle
+                    size={20}
+                    weight="fill"
+                    className="text-red-300"
+                  />
+                </Button>
+                <Button
+                  variant={"ghost"}
+                  size={"icon"}
+                  onClick={() => stopRecording()}
+                  onTouchStart={startRecording}
+                  onTouchEnd={stopRecording}
+                >
+                  <X size={20} weight="bold" />
+                </Button>
+              </div>
+            ) : transcribing ? (
+              <Spinner />
+            ) : (
+              <Button
+                size={"icon"}
+                variant={"ghost"}
+                className="min-w-8 h-8"
+                onClick={() => {
+                  startRecording();
+                  setTimeout(() => {
+                    stopRecording();
+                  }, 20000);
+                }}
+                onTouchStart={startRecording}
+                onTouchEnd={stopRecording}
+              >
+                <Microphone size={20} weight="bold" />
+              </Button>
+            )}
+            <div className="min-w-8 h-8 flex justify-center items-center">
+              <ArrowElbowDownLeft size={16} weight="bold" />
+            </div>
+          </div>
+          <div className="flex flex-row items-center w-full justify-start gap-2 p-2">
+            <ModelSelect />
+            <div className="flex-1"></div>
+            <Button variant={"secondary"} size={"sm"} onClick={openFilters}>
+              <ClockClockwise size={16} weight="bold" />
+              History
+              <Badge>
+                <Command size={12} weight="bold" /> K
+              </Badge>
             </Button>
           </div>
-        ) : transcribing ? (
-          <Spinner />
-        ) : (
-          <Button
-            size={"icon"}
-            variant={"ghost"}
-            className="min-w-8 h-8"
-            onClick={() => startRecording()}
-            onTouchStart={startRecording}
-            onTouchEnd={stopRecording}
-          >
-            <Microphone size={20} weight="bold" />
-          </Button>
-        )}
-
-        <div className="min-w-8 h-8 flex justify-center items-center">
-          <ArrowElbowDownLeft size={16} weight="bold" />
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
 
       {isNewSession && (
-        <div className="grid grid-cols-2 gap-2 w-[700px]">
-          {examples?.map((example, index) => (
-            <div
-              key={index}
-              onClick={() => {
-                runModel(
-                  {
-                    role: RoleType.assistant,
-                    type: PromptType.ask,
-                    query: example,
-                  },
-                  sessionId!.toString()
-                );
-              }}
-              className="flex flex-row items-center text-sm py-3 px-4 border border-white/5 text-zinc-400 w-full rounded-2xl hover:bg-black/20 hover:scale-[101%] cursor-pointer"
-            >
-              {example}
-            </div>
-          ))}
+        <div className="flex flex-col gap-1">
+          <LabelDivider label="Examples" />
+          <div className="grid grid-cols-3 gap-2 w-[700px]">
+            {examples?.map((example, index) => (
+              <motion.div
+                variants={zoomVariant}
+                transition={{ delay: 1 }}
+                initial={"initial"}
+                animate={"animate"}
+                key={index}
+                onClick={() => {
+                  runModel(
+                    {
+                      role: RoleType.assistant,
+                      type: PromptType.ask,
+                      query: example.prompt,
+                    },
+                    sessionId!.toString()
+                  );
+                }}
+                className="flex flex-col gap-2 items-start text-sm py-3 px-4 border border-white/5 text-zinc-400 w-full rounded-2xl hover:bg-black/20 hover:scale-[101%] cursor-pointer"
+              >
+                <p className="text-sm text-white font-semibold w-full">
+                  {example.title}
+                </p>
+                <p className="text-sm text-white font-semibold w-full">
+                  {example.prompt}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
     </div>

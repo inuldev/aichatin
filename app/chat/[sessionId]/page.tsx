@@ -8,7 +8,7 @@ import { Avatar } from "@/components/ui/avatar";
 
 import { ChatInput } from "@/components/chat-input";
 import { useSettings } from "@/context/settings/contex";
-import { ModelSelect } from "@/components/model-select";
+import { ModelIcon } from "@/components/icons/model-icon";
 import { ChatMessages } from "@/components/chat-messages";
 
 const ChatSessionPage = () => {
@@ -22,9 +22,11 @@ const ChatSessionPage = () => {
   return (
     <div className="w-full h-screen flex flex-row relative overflow-hidden">
       <div className="absolute flex justify-between items-center flex-row top-0 left-2 right-6 bg-gradient-to-b dark:from-zinc-800 dark:to-transparent from-70% to-white/10 z-10">
-        <p className="p-2 text-sm text-zinc-500">AIchatIn</p>
+        <div className="flex flex-row gap-0 items-center">
+          <ModelIcon type="aichatin" size="md" />
+          <p className="p-2 text-sm text-zinc-500">AIchatIn</p>
+        </div>
         <div className="flex flex-row gap-2 items-center">
-          <ModelSelect />
           <Avatar name="Chat" size={"sm"} />
           <Button variant={"secondary"} size={"icon"} onClick={open}>
             <DotsThree size={20} weight="bold" />

@@ -1,4 +1,5 @@
 import moment from "moment";
+import "moment/locale/id";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { Warning } from "@phosphor-icons/react";
@@ -11,6 +12,7 @@ import { TChatMessage } from "@/hooks/use-chat-session";
 
 import { Avatar } from "./ui/avatar";
 import { AIMessageBubble } from "./ai-bubble";
+import { LabelDivider } from "./ui/label-divider";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 export type TRenderMessageProps = {
@@ -71,7 +73,8 @@ export const ChatMessages = () => {
 
   const messagesByDate = currentSession?.messages.reduce(
     (acc: TMessageListByDate, message) => {
-      const date = moment(message.createdAt).format("DD/MM/YYYY");
+      moment.locale("id");
+      const date = moment(message.createdAt).format("DD MMMM YYYY");
       if (!acc?.[date]) {
         acc[date] = [message];
       } else {
@@ -99,13 +102,7 @@ export const ChatMessages = () => {
           Object.keys(messagesByDate).map((date) => {
             return (
               <div className="flex flex-col" key={date}>
-                <div className="flex flex-row items-center w-full pb-4 pt-8">
-                  <div className="w-full h-[1px] bg-white/5"></div>
-                  <p className="px-2 text-zinc-500 text-xs flex-shrink-0">
-                    {getRelativeDate(date)}
-                  </p>
-                  <div className="w-full h-[1px] bg-white/5"></div>
-                </div>
+                <LabelDivider label={getRelativeDate(date)} />
                 <div className="flex flex-col gap-4 w-full items-start">
                   {messagesByDate[date].map((message) =>
                     renderMessage({

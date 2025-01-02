@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 export type TModelIcon = {
-  type: "gpt3" | "gpt4" | "anthropic" | "gemini" | "openai";
+  type: "gpt3" | "gpt4" | "anthropic" | "gemini" | "openai" | "aichatin";
   size: "sm" | "md" | "lg";
 };
 
@@ -13,6 +13,7 @@ export const ModelIcon = ({ type, size }: TModelIcon) => {
     anthropic: "/icons/claude.svg",
     gemini: "/icons/gemini.svg",
     openai: "/icons/openai.svg",
+    aichatin: "/icons/aichat.svg",
   };
 
   return (
