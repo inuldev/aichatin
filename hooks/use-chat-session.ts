@@ -73,6 +73,7 @@ export const useChatSession = () => {
     );
 
     await set("chat-sessions", newSessions);
+    return newSessions;
   };
 
   const addMessageToSession = async (
@@ -151,6 +152,10 @@ export const useChatSession = () => {
     return sessions.sort((a, b) => moment(b[sortBy]).diff(moment(a[sortBy])));
   };
 
+  const sortMessages = (messages: TChatMessage[], sortBy: "createdAt") => {
+    return messages.sort((a, b) => moment(b[sortBy]).diff(moment(a[sortBy])));
+  };
+
   return {
     getSessions,
     setSession,
@@ -161,5 +166,6 @@ export const useChatSession = () => {
     createNewSession,
     clearSessions,
     sortSessions,
+    sortMessages,
   };
 };

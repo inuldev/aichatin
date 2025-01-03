@@ -5,10 +5,20 @@ export type TApiKeys = Partial<Record<TBaseModel, string>>;
 
 export type TPreferences = {
   defaultModel: TModelKey;
+  systemPrompt: string;
+  messageLimit: number | "all";
+  temperature: number;
+  topP: number;
+  topK: number;
 };
 
-const defaultPreferences: TPreferences = {
+export const defaultPreferences: TPreferences = {
   defaultModel: "gpt-4-turbo",
+  systemPrompt: "You are a helpful assistant.",
+  messageLimit: "all",
+  temperature: 0.5,
+  topP: 1.0,
+  topK: 5,
 };
 
 export const usePreferences = () => {

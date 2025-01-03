@@ -5,6 +5,7 @@ import { ChatCentered, GearSix, UserCircle } from "@phosphor-icons/react";
 
 import { SettingsContext } from "./contex";
 import { ModelIcon } from "@/components/icons/model-icon";
+import { CommonSettings } from "@/components/settings/common";
 import { OpenAISettings } from "@/components/settings/openai";
 import { GeminiSettings } from "@/components/settings/gemini";
 import { AnthropicSettings } from "@/components/settings/anthropic";
@@ -40,7 +41,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
       name: "Common",
       key: "common",
       icon: () => <GearSix size={16} weight="bold" />,
-      component: <div>Common</div>,
+      component: <CommonSettings />,
     },
     {
       name: "Prompts",
@@ -86,7 +87,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
       {children}
 
       <Dialog open={isSettingOpen} onOpenChange={setIsSettingOpen}>
-        <DialogContent className="min-w-[800px] min-h-[80vh] flex flex-row overflow-hidden border border-white/5 p-0">
+        <DialogContent className="min-w-[800px] h-[600px] flex flex-row overflow-hidden border border-white/5 p-0">
           <DialogTitle className="sr-only">Settings</DialogTitle>
           <DialogDescription className="sr-only">Settings</DialogDescription>
           <div className="w-[250px] bg-black/10 p-2 left-0 top-0 bottom-0 flex flex-col">

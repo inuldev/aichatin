@@ -5,6 +5,7 @@ import "./globals.css";
 import { ChatProvider } from "@/context/chat/provider";
 import { FiltersProvider } from "@/context/filter/provider";
 import { SettingsProvider } from "@/context/settings/provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,15 +35,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ChatProvider>
-          <SettingsProvider>
-            <FiltersProvider>
-              <div className="w-full h-screen flex flex-row dark:bg-zinc-800">
-                {children}
-              </div>
-            </FiltersProvider>
-          </SettingsProvider>
-        </ChatProvider>
+        <TooltipProvider>
+          <ChatProvider>
+            <SettingsProvider>
+              <FiltersProvider>
+                <div className="w-full h-screen flex flex-row dark:bg-zinc-800">
+                  {children}
+                </div>
+              </FiltersProvider>
+            </SettingsProvider>
+          </ChatProvider>
+        </TooltipProvider>
       </body>
     </html>
   );

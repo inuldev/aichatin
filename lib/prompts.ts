@@ -31,3 +31,19 @@ export const getInstruction = (type: PromptType) => {
       return "Reply to this tweet, social media post or comment in short 3-4 words max";
   }
 };
+
+export const examplePrompts = [
+  {
+    title: "What is the capital of Indonesia?",
+    prompt: "What is the capital of Indonesia?",
+  },
+  {
+    title: "What is quantum computing?",
+    prompt: "What is quantum computing?",
+  },
+  { title: "What are qubits?", prompt: "What are qubits?" },
+  {
+    title: "What is multi planetary ideology?",
+    prompt: "What is multi planetary ideology?",
+  },
+];

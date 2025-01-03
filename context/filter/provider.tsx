@@ -2,7 +2,7 @@
 
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { Chat, Eraser, Plus } from "@phosphor-icons/react";
+import { Chat, Eraser, Plus, TrashSimple } from "@phosphor-icons/react";
 
 import { FiltersContext } from "./context";
 import {
@@ -26,7 +26,13 @@ export const FiltersProvider = ({ children }: TFiltersProvider) => {
   const open = () => setIsFilterOpen(true);
   const dismiss = () => setIsFilterOpen(false);
 
-  const { sessions, createSession, clearChatSessions } = useChatContext();
+  const {
+    sessions,
+    createSession,
+    clearChatSessions,
+    removeSession,
+    currentSession,
+  } = useChatContext();
   const { sortSessions } = useChatSession();
   const router = useRouter();
 
@@ -64,6 +70,22 @@ export const FiltersProvider = ({ children }: TFiltersProvider) => {
             >
               <Plus size={14} weight="bold" />
               New session
+            </CommandItem>
+            <CommandItem
+              className="gap-3"
+              value="delete"
+              onSelect={(value) => {
+                currentSession?.id &&
+                  removeSession(currentSession?.id).then((session) => {
+                    createSession().then((session) => {
+                      router.push(`/chat/${session.id}`);
+                      dismiss();
+                    });
+                  });
+              }}
+            >
+              <TrashSimple size={14} weight="bold" />
+              Delete current session
             </CommandItem>
             <CommandItem
               className="gap-3"

@@ -3,6 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 
+import { defaultPreferences, usePreferences } from "./use-preferences";
 import { ModelIcon } from "@/components/icons/model-icon";
 
 export type TBaseModel = "openai" | "anthropic" | "gemini";
@@ -28,13 +29,21 @@ export type TModel = {
 };
 
 export const useModelList = () => {
+  const { getPreferences } = usePreferences();
   const createInstance = async (model: TModel, apiKey: string) => {
+    const preferences = await getPreferences();
+    const temperature =
+      preferences.temperature || defaultPreferences.temperature;
+    const topP = preferences.topP || defaultPreferences.topP;
+    const topK = preferences.topK || defaultPreferences.topK;
     switch (model.baseModel) {
       case "openai":
         return new ChatOpenAI({
           model: model.key,
           streaming: true,
           apiKey,
+          temperature,
+          topP,
         });
       case "anthropic":
         return new ChatAnthropic({
@@ -42,12 +51,18 @@ export const useModelList = () => {
           streaming: true,
           anthropicApiUrl: `${window.location.origin}/api/anthropic`,
           apiKey,
+          temperature,
+          topP,
+          topK,
         });
       case "gemini":
         return new ChatGoogleGenerativeAI({
           model: model.key,
           streaming: true,
           apiKey,
+          temperature,
+          topP,
+          topK,
         });
       default:
         throw new Error("Invalid base model");
