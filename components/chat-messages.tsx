@@ -2,13 +2,13 @@ import moment from "moment";
 import "moment/locale/id";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
-import { Warning } from "@phosphor-icons/react";
+import { Quotes, Warning } from "@phosphor-icons/react";
 
 import { getRelativeDate } from "@/lib/date";
 import { useMarkdown } from "@/hooks/use-mdx";
 import { TModelKey } from "@/hooks/use-model-list";
 import { useChatContext } from "@/context/chat/context";
-import { TChatMessage } from "@/hooks/use-chat-session";
+import { PromptProps, TChatMessage } from "@/hooks/use-chat-session";
 
 import { Avatar } from "./ui/avatar";
 import { AIMessageBubble } from "./ai-bubble";
@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 export type TRenderMessageProps = {
   key: string;
   humanMessage: string;
+  props?: PromptProps;
   model: TModelKey;
   aiMessage?: string;
   loading?: boolean;
@@ -55,6 +56,21 @@ export const ChatMessages = () => {
 
     return (
       <div className="flex flex-col gap-1 items-start w-full" key={key}>
+        {props.props?.context && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: 1,
+              transition: { duration: 1, ease: "easeInOut" },
+            }}
+            className="bg-black/30 rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border border-white/5"
+          >
+            <Quotes size={16} weight="fill" className="flex-shrink-0 mt-2" />
+            <span className="pt-[0.35em] pb-[0.25em] leading-6">
+              {props.props?.context}
+            </span>
+          </motion.div>
+        )}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{
@@ -88,6 +104,7 @@ export const ChatMessages = () => {
   return (
     <div
       ref={chatContainer}
+      id="chat-container"
       className="flex flex-col w-full items-center h-screen overflow-y-auto pt-[60px] pb-[200px]"
     >
       <motion.div
@@ -96,7 +113,7 @@ export const ChatMessages = () => {
           opacity: 1,
           transition: { duration: 1, ease: "easeInOut" },
         }}
-        className="w-[600px] flex flex-col gap-8"
+        className="w-[620px] flex flex-col gap-8"
       >
         {messagesByDate &&
           Object.keys(messagesByDate).map((date) => {
@@ -109,6 +126,7 @@ export const ChatMessages = () => {
                       key: message.id,
                       humanMessage: message.rawHuman,
                       model: message.model,
+                      props: message.props,
                       aiMessage: message.rawAI,
                     })
                   )}

@@ -11,7 +11,7 @@ export type TLabelDivider = {
 export const LabelDivider = ({
   label,
   className,
-  transitionDuration = 1,
+  transitionDuration,
 }: TLabelDivider) => {
   return (
     <motion.div

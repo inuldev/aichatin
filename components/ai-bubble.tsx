@@ -56,9 +56,6 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
         </motion.p>
         {!loading && (
           <div className="flex flex-row gap-1">
-            <Button variant={"ghost"} size={"icon"}>
-              <BookmarkSimple size={16} weight="regular" />
-            </Button>
             <Button variant={"ghost"} size={"icon"} onClick={handleCopyContent}>
               {showCopied ? (
                 <Check size={16} weight="regular" />
@@ -68,9 +65,6 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
             </Button>
             <Button variant={"ghost"} size={"icon"}>
               <ArrowClockwise size={16} weight="regular" />
-            </Button>
-            <Button variant={"ghost"} size={"icon"}>
-              <TrashSimple size={16} weight="regular" />
             </Button>
           </div>
         )}

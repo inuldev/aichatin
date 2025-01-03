@@ -4,20 +4,25 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  ArrowElbowDownLeft,
+  ArrowDown,
+  ArrowUp,
   ClockClockwise,
   Command,
   Microphone,
   Plus,
+  Quotes,
   StarFour,
   StopCircle,
   X,
 } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
+import { useFilters } from "@/context/filter/context";
 import { useChatContext } from "@/context/chat/context";
 import { PromptType, RoleType } from "@/hooks/use-chat-session";
 import { useRecordVoice } from "@/hooks/use-record-voice";
+import { useTextSelection } from "@/hooks/use-text-selection";
+import useScrollToBottom from "@/hooks/use-scroll-to-bottom";
 
 import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
@@ -26,8 +31,8 @@ import Spinner from "./ui/loading-spinner";
 import { AudioWaveSpinner } from "./ui/audio-wave";
 
 import { ModelSelect } from "./model-select";
-import { useFilters } from "@/context/filter/context";
-import { LabelDivider } from "./ui/label-divider";
+import { ChatExamples } from "./chat-examples";
+import moment from "moment";
 
 const slideUpVariant = {
   initial: { y: 50, opacity: 0 },
@@ -38,7 +43,7 @@ const slideUpVariant = {
   },
 };
 
-const zoomVariant = {
+export const zoomVariant = {
   initial: { scale: 0.8, opacity: 0 },
   animate: {
     scale: 1,
@@ -51,6 +56,9 @@ export const ChatInput = () => {
   const { sessionId } = useParams();
   const [inputValue, setInputValue] = useState("");
   const { open: openFilters } = useFilters();
+  const { showPopup, selectedText, handleClearSelection } = useTextSelection();
+  const { showButton, scrollToBottom } = useScrollToBottom();
+  const [contexValue, setContexValue] = useState<string>("");
   const { runModel, currentSession, createSession, streamingMessage } =
     useChatContext();
   const router = useRouter();
@@ -92,9 +100,11 @@ export const ChatInput = () => {
           role: RoleType.assistant,
           type: PromptType.ask,
           query: inputValue,
+          context: contexValue,
         },
         sessionId!.toString()
       );
+      setContexValue("");
       setInputValue("");
     }
   };
@@ -114,10 +124,22 @@ export const ChatInput = () => {
     }
   }, [text]);
 
+  const renderGreeting = (name: string) => {
+    const date = moment();
+    const hours = date.get("hour");
+    if (hours >= 0 && hours < 12) {
+      return `Selamat pagi, ${name}!`;
+    } else if (hours >= 12 && hours < 18) {
+      return `Selamat siang, ${name}!`;
+    } else {
+      return `Selamat malam, ${name}!`;
+    }
+  };
+
   return (
     <div
       className={cn(
-        "w-full flex flex-col items-center justify-center absolute bottom-0 px-4 pb-4 pt-16 bg-gradient-to-t from-white dark:from-zinc-800 dark:to-transparent from-70% to-white/10 left-0 right-0 gap-6",
+        "w-full flex flex-col items-center justify-center absolute bottom-0 px-4 pb-4 pt-16 bg-gradient-to-t from-white dark:from-zinc-800 dark:to-transparent from-70% to-white/10 left-0 right-0 gap-4",
         isNewSession && "top-0"
       )}
     >
@@ -128,12 +150,41 @@ export const ChatInput = () => {
             animate={{ opacity: 1, transition: { duration: 1 } }}
             className="text-2xl font-semibold tracking-tight text-zinc-100"
           >
-            <span className="text-zinc-400">Hello!👋</span>
+            <span className="text-zinc-500">{renderGreeting("Guest")} 👋</span>
             <br />
-            How can I help you with?✨
+            How can I help you with? ✨
           </motion.h1>
         </div>
       )}
+      <div className="flex flex-row items-center gap-2">
+        {showButton && !showPopup && (
+          <motion.span
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+          >
+            <Button
+              onClick={scrollToBottom}
+              variant={"secondary"}
+              size={"icon"}
+            >
+              <ArrowDown size={20} weight={"bold"} />
+            </Button>
+          </motion.span>
+        )}
+        {showPopup && (
+          <motion.span
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+          >
+            <Button onClick={() => {}} variant={"secondary"} size={"sm"}>
+              <Quotes size={20} weight={"bold"} /> Reply
+            </Button>
+          </motion.span>
+        )}
+      </div>
+
       <div className="flex flex-col gap-1">
         <motion.div
           variants={slideUpVariant}
@@ -216,14 +267,23 @@ export const ChatInput = () => {
                 <Microphone size={20} weight="bold" />
               </Button>
             )}
-            <div className="min-w-8 h-8 flex justify-center items-center">
-              <ArrowElbowDownLeft size={16} weight="bold" />
-            </div>
+            <Button
+              size={"icon"}
+              variant={"ghost"}
+              className="min-w-8 h-8 ml-1"
+            >
+              <ArrowUp size={20} weight="bold" />
+            </Button>
           </div>
           <div className="flex flex-row items-center w-full justify-start gap-2 p-2">
             <ModelSelect />
             <div className="flex-1"></div>
-            <Button variant={"secondary"} size={"sm"} onClick={openFilters}>
+            <Button
+              variant={"secondary"}
+              size={"sm"}
+              onClick={openFilters}
+              className="px-1.5"
+            >
               <ClockClockwise size={16} weight="bold" />
               History
               <Badge>
@@ -235,38 +295,20 @@ export const ChatInput = () => {
       </div>
 
       {isNewSession && (
-        <div className="flex flex-col gap-1">
-          <LabelDivider label="Examples" />
-          <div className="grid grid-cols-3 gap-2 w-[700px]">
-            {examples?.map((example, index) => (
-              <motion.div
-                variants={zoomVariant}
-                transition={{ delay: 1 }}
-                initial={"initial"}
-                animate={"animate"}
-                key={index}
-                onClick={() => {
-                  runModel(
-                    {
-                      role: RoleType.assistant,
-                      type: PromptType.ask,
-                      query: example.prompt,
-                    },
-                    sessionId!.toString()
-                  );
-                }}
-                className="flex flex-col gap-2 items-start text-sm py-3 px-4 border border-white/5 text-zinc-400 w-full rounded-2xl hover:bg-black/20 hover:scale-[101%] cursor-pointer"
-              >
-                <p className="text-sm text-white font-semibold w-full">
-                  {example.title}
-                </p>
-                <p className="text-sm text-white font-semibold w-full">
-                  {example.prompt}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+        <ChatExamples
+          examples={examples}
+          onExampleClick={(prompt) => {
+            setInputValue(prompt);
+            runModel(
+              {
+                role: RoleType.assistant,
+                type: PromptType.ask,
+                query: prompt,
+              },
+              sessionId!.toString()
+            );
+          }}
+        />
       )}
     </div>
   );

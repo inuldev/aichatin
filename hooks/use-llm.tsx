@@ -1,16 +1,19 @@
 import { v4 } from "uuid";
 import moment from "moment";
+import "moment/locale/id";
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
+import type { Serialized } from "@langchain/core/load/serializable";
 
 import { PromptProps, TChatMessage, useChatSession } from "./use-chat-session";
 import { usePreferences } from "./use-preferences";
 import { TModelKey, useModelList } from "./use-model-list";
 
 import { getInstruction, getRole } from "@/lib/prompts";
+import { LLMResult } from "@langchain/core/outputs";
 
 export type TStreamProps = {
   props: PromptProps;
@@ -42,12 +45,14 @@ export const useLLM = ({
 
   const preparePrompt = async (props: PromptProps, history: TChatMessage[]) => {
     const messageHistory = history;
+    console.log("preparing prompt", props, history);
+
     const prompt = ChatPromptTemplate.fromMessages(
       messageHistory?.length > 0
         ? [
             [
               "system",
-              "You are {role} Answer user's question based on the following context:",
+              `You are {role} Answer user's question based on the following context:"""{context}""". You can also refer these previous conversations if needed: `,
             ],
             new MessagesPlaceholder("chat_history"),
             ["user", "{input}"],
@@ -77,6 +82,7 @@ export const useLLM = ({
         ? {
             role: getRole(props.role),
             chat_history: previousMessageHistory,
+            context: props.context,
             input: props.query,
           }
         : {
@@ -127,10 +133,28 @@ export const useLLM = ({
 
       const model = await createInstance(selectedModel, apiKey);
 
+      const abortController = new AbortController();
+      abortController.abort();
+
       const stream = await model.stream(formattedChatPrompt, {
         options: {
           stream: true,
+          signal: abortController.signal,
         },
+        callbacks: [
+          {
+            handleLLMStart: async (llm: Serialized, prompts: string[]) => {
+              console.log(JSON.stringify(llm, null, 2));
+              console.log(JSON.stringify(prompts, null, 2));
+            },
+            handleLLMEnd: async (output: LLMResult) => {
+              console.log(JSON.stringify(output, null, 2));
+            },
+            handleLLMError: async (err: Error) => {
+              console.log(err);
+            },
+          },
+        ],
       });
 
       if (!stream) {
@@ -158,6 +182,7 @@ export const useLLM = ({
         });
       }
 
+      moment.locale("id");
       const chatMessage: TChatMessage = {
         id: newMessageId,
         model: selectedModel.key,
@@ -183,11 +208,13 @@ export const useLLM = ({
         props,
         model: modelKey,
         sessionId,
-        error: e?.error?.error?.message || e?.error?.message,
+        error: e?.error?.error?.message || e?.error,
         loading: false,
       });
     }
   };
 
-  return { runModel };
+  return {
+    runModel,
+  };
 };

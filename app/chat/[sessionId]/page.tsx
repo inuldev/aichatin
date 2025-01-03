@@ -21,7 +21,7 @@ const ChatSessionPage = () => {
 
   return (
     <div className="w-full h-screen flex flex-row relative overflow-hidden">
-      <div className="absolute flex justify-between items-center flex-row top-0 left-2 right-6 bg-gradient-to-b dark:from-zinc-800 dark:to-transparent from-70% to-white/10 z-10">
+      <div className="absolute flex justify-between items-center flex-row top-0 left-4 right-6 bg-gradient-to-b dark:from-zinc-800 dark:to-transparent from-70% to-white/10 z-10">
         <div className="flex flex-row gap-0 items-center">
           <ModelIcon type="aichatin" size="md" />
           <p className="p-2 text-sm text-zinc-500">AIchatIn</p>
