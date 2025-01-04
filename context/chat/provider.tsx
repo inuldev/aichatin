@@ -29,7 +29,7 @@ export const ChatProvider = ({ children }: TChatProvider) => {
     TChatSession | undefined
   >();
 
-  const { runModel } = useLLM({
+  const { runModel, stopGeneration } = useLLM({
     onInit: async (props) => {
       setStreamingMessage(props);
     },
@@ -56,9 +56,8 @@ export const ChatProvider = ({ children }: TChatProvider) => {
   };
 
   const removeSession = async (sessionId: string) => {
-    removeSessionById(sessionId).then(() => {
-      fetchSessions();
-    });
+    const sessions = await removeSession(sessionId);
+    await fetchSessions();
   };
 
   const clearChatSessions = async () => {
@@ -117,6 +116,7 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         streamingMessage,
         clearChatSessions,
         removeSession,
+        stopGeneration,
       }}
     >
       {children}

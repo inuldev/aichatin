@@ -1,22 +1,15 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { DotsThree } from "@phosphor-icons/react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
-
 import { ChatInput } from "@/components/chat-input";
 import { useSettings } from "@/context/settings/contex";
 import { ModelIcon } from "@/components/icons/model-icon";
 import { ChatMessages } from "@/components/chat-messages";
 
 const ChatSessionPage = () => {
-  const { sessionId } = useParams();
-  if (!sessionId) {
-    return null;
-  }
-
   const { open } = useSettings();
 
   return (
@@ -28,7 +21,13 @@ const ChatSessionPage = () => {
         </div>
         <div className="flex flex-row gap-2 items-center">
           <Avatar name="Chat" size={"sm"} />
-          <Button variant={"secondary"} size={"icon"} onClick={open}>
+          <Button
+            variant={"secondary"}
+            size={"icon"}
+            onClick={() => {
+              open();
+            }}
+          >
             <DotsThree size={20} weight="bold" />
           </Button>
         </div>

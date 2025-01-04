@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
 export const ModelSelect = () => {
   const [selectedModel, setSelectedModel] = useState<TModelKey>("gpt-4-turbo");
-
+  const [isOpen, setIsOpen] = useState(false);
   const { getModelByKey, models } = useModelList();
   const activeModel = getModelByKey(selectedModel);
   const { getPreferences, setPreferences } = usePreferences();
@@ -23,7 +23,7 @@ export const ModelSelect = () => {
   }, []);
 
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger>
         <Button
           variant="secondary"
@@ -45,6 +45,7 @@ export const ModelSelect = () => {
               onClick={() => {
                 setPreferences({ defaultModel: model.key }).then(() => {
                   setSelectedModel(model.key);
+                  setIsOpen(false);
                 });
               }}
             >

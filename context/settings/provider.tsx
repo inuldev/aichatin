@@ -31,9 +31,13 @@ export type TSettingMenuItem = {
 
 export const SettingsProvider = ({ children }: TSettingsProvider) => {
   const [isSettingOpen, setIsSettingOpen] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState("profile");
+  const [selectedMenu, setSelectedMenu] = useState("common");
 
-  const open = () => setIsSettingOpen(true);
+  const open = (key?: string) => {
+    setIsSettingOpen(true);
+    setSelectedMenu(key || "common");
+  };
+
   const dismiss = () => setIsSettingOpen(false);
 
   const settingMenu: TSettingMenuItem[] = [
@@ -42,18 +46,6 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
       key: "common",
       icon: () => <GearSix size={16} weight="bold" />,
       component: <CommonSettings />,
-    },
-    {
-      name: "Prompts",
-      key: "prompts",
-      icon: () => <ChatCentered size={16} weight="bold" />,
-      component: <div>Prompts</div>,
-    },
-    {
-      name: "Roles",
-      key: "roles",
-      icon: () => <UserCircle size={16} weight="bold" />,
-      component: <div>Roles</div>,
     },
   ];
 
@@ -91,7 +83,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
           <DialogTitle className="sr-only">Settings</DialogTitle>
           <DialogDescription className="sr-only">Settings</DialogDescription>
           <div className="w-[250px] bg-black/10 p-2 left-0 top-0 bottom-0 flex flex-col">
-            <p className="px-4 py-2 text-xs font-semibold text-white/30">
+            <p className="px-2 py-2 text-xs font-semibold text-white/30">
               GENERAL
             </p>
             {settingMenu.map((menu) => (
@@ -106,7 +98,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
                 {menu.name}
               </Button>
             ))}
-            <p className="px-4 py-2 text-xs font-semibold text-white/30">
+            <p className="px-2 py-2 text-xs font-semibold text-white/30">
               MODELS
             </p>
             {modelsMenu.map((menu) => (
@@ -122,7 +114,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
               </Button>
             ))}
           </div>
-          <div className="ml-[250px] w-full h-full">
+          <div className="ml-[250px] w-full h-full overflow-y-auto">
             {selectedMenuItem?.component}
           </div>
         </DialogContent>

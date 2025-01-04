@@ -12,6 +12,7 @@ import {
   Plus,
   Quotes,
   StarFour,
+  Stop,
   StopCircle,
   X,
 } from "@phosphor-icons/react";
@@ -43,8 +44,13 @@ export const ChatInput = () => {
   const { showPopup, selectedText, handleClearSelection } = useTextSelection();
   const { showButton, scrollToBottom } = useScrollToBottom();
   const [contextValue, setContextValue] = useState<string>("");
-  const { runModel, currentSession, createSession, streamingMessage } =
-    useChatContext();
+  const {
+    runModel,
+    currentSession,
+    createSession,
+    streamingMessage,
+    stopGeneration,
+  } = useChatContext();
   const router = useRouter();
   const { startRecording, stopRecording, recording, text, transcribing } =
     useRecordVoice();
@@ -60,20 +66,24 @@ export const ChatInput = () => {
     }
   }, [sessionId]);
 
+  const handleRunModel = () => {
+    runModel(
+      {
+        role: RoleType.assistant,
+        type: PromptType.ask,
+        query: inputValue,
+        context: contextValue,
+      },
+      sessionId!.toString()
+    );
+    setContextValue("");
+    setInputValue("");
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      runModel(
-        {
-          role: RoleType.assistant,
-          type: PromptType.ask,
-          query: inputValue,
-          context: contextValue,
-        },
-        sessionId!.toString()
-      );
-      setContextValue("");
-      setInputValue("");
+      handleRunModel();
     }
   };
 
@@ -91,6 +101,26 @@ export const ChatInput = () => {
       setInputValue("");
     }
   }, [text]);
+
+  const renderStopButton = () => {
+    if (streamingMessage?.loading) {
+      return (
+        <motion.span
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+        >
+          <Button
+            onClick={() => stopGeneration()}
+            variant={"secondary"}
+            size={"sm"}
+          >
+            <Stop size={20} weight={"bold"} />
+          </Button>
+        </motion.span>
+      );
+    }
+  };
 
   const renderNewSession = () => {
     if (isNewSession) {
@@ -261,6 +291,7 @@ export const ChatInput = () => {
               size={"icon"}
               variant={"ghost"}
               className="min-w-8 h-8 ml-1"
+              onClick={() => handleRunModel()}
             >
               <ArrowUp size={20} weight="bold" />
             </Button>
@@ -288,14 +319,7 @@ export const ChatInput = () => {
         <ChatExamples
           onExampleClick={(prompt) => {
             setInputValue(prompt);
-            runModel(
-              {
-                role: RoleType.assistant,
-                type: PromptType.ask,
-                query: prompt,
-              },
-              sessionId!.toString()
-            );
+            handleRunModel();
           }}
         />
       )}
