@@ -16,6 +16,7 @@ export type TChatContext = {
   stopGeneration: () => void;
   streamingMessage?: TStreamProps;
   error?: string;
+  removeMessage: (messageId: string) => void;
   runModel: (props: PromptProps, sessionId: string) => Promise<void>;
 };
 

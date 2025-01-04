@@ -16,7 +16,7 @@ import { LabelDivider } from "./ui/label-divider";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 export type TRenderMessageProps = {
-  key: string;
+  id: string;
   humanMessage: string;
   props?: PromptProps;
   model: TModelKey;
@@ -52,10 +52,10 @@ export const ChatMessages = () => {
     streamingMessage?.sessionId === currentSession?.id;
 
   const renderMessage = (props: TRenderMessageProps) => {
-    const { key, humanMessage, aiMessage, loading, model } = props;
+    const { id, humanMessage, aiMessage, loading, model } = props;
 
     return (
-      <div className="flex flex-col gap-1 items-start w-full" key={key}>
+      <div className="flex flex-col gap-1 items-start w-full" key={id}>
         {props.props?.context && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -80,7 +80,9 @@ export const ChatMessages = () => {
           className="bg-black/30 rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4 border border-white/5"
         >
           <Avatar name="Chat" size="sm" />
-          <span className="pt-1 leading-5">{humanMessage}</span>
+          <span className="pt-[0.25em] pb-[0.15em] leading-6">
+            {humanMessage}
+          </span>
         </motion.div>
         <AIMessageBubble {...props} />
       </div>
@@ -123,7 +125,7 @@ export const ChatMessages = () => {
                 <div className="flex flex-col gap-4 w-full items-start">
                   {messagesByDate[date].map((message) =>
                     renderMessage({
-                      key: message.id,
+                      id: message.id,
                       humanMessage: message.rawHuman,
                       model: message.model,
                       props: message.props,
@@ -139,7 +141,7 @@ export const ChatMessages = () => {
           streamingMessage?.props?.query &&
           !streamingMessage?.error &&
           renderMessage({
-            key: "streaming",
+            id: "streaming",
             humanMessage: streamingMessage?.props?.query,
             aiMessage: streamingMessage?.message,
             model: streamingMessage?.model,

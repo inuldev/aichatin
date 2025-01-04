@@ -19,6 +19,7 @@ export const ChatProvider = ({ children }: TChatProvider) => {
     getSessionById,
     clearSessions,
     removeSessionById,
+    removeMessageById,
   } = useChatSession();
   const { sessionId } = useParams();
   const [sessions, setSessions] = useState<TChatSession[]>([]);
@@ -56,7 +57,7 @@ export const ChatProvider = ({ children }: TChatProvider) => {
   };
 
   const removeSession = async (sessionId: string) => {
-    const sessions = await removeSession(sessionId);
+    const sessions = await removeSessionById(sessionId);
     await fetchSessions();
   };
 
@@ -103,6 +104,16 @@ export const ChatProvider = ({ children }: TChatProvider) => {
     fetchSessions();
   };
 
+  const removeMessage = (messageId: string) => {
+    if (!currentSession?.id) {
+      return;
+    }
+
+    removeMessageById(currentSession?.id, messageId).then(async () => {
+      fetchSessions();
+    });
+  };
+
   return (
     <ChatContext.Provider
       value={{
@@ -117,6 +128,7 @@ export const ChatProvider = ({ children }: TChatProvider) => {
         clearChatSessions,
         removeSession,
         stopGeneration,
+        removeMessage,
       }}
     >
       {children}

@@ -20,7 +20,10 @@ import {
 import { cn } from "@/lib/utils";
 import { slideUpVariant } from "@/lib/framer-motion";
 import { useFilters } from "@/context/filter/context";
+import { useModelList } from "@/hooks/use-model-list";
+import { useSettings } from "@/context/settings/contex";
 import { useChatContext } from "@/context/chat/context";
+import { usePreferences } from "@/hooks/use-preferences";
 import { PromptType, RoleType } from "@/hooks/use-chat-session";
 import { useRecordVoice } from "@/hooks/use-record-voice";
 import { useTextSelection } from "@/hooks/use-text-selection";
@@ -36,6 +39,7 @@ import { AudioWaveSpinner } from "./ui/audio-wave";
 import { ModelSelect } from "./model-select";
 import { ChatExamples } from "./chat-examples";
 import { ChatGreeting } from "./chat-greeting";
+import { toast } from "sonner";
 
 export const ChatInput = () => {
   const { sessionId } = useParams();
@@ -59,6 +63,9 @@ export const ChatInput = () => {
     !currentSession?.messages?.length && !streamingMessage?.loading;
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const { getPreferences, getApiKey } = usePreferences();
+  const { getModelByKey } = useModelList();
+  const { open: openSettings } = useSettings();
 
   useEffect(() => {
     if (sessionId) {
@@ -66,18 +73,33 @@ export const ChatInput = () => {
     }
   }, [sessionId]);
 
-  const handleRunModel = () => {
-    runModel(
-      {
-        role: RoleType.assistant,
-        type: PromptType.ask,
-        query: inputValue,
-        context: contextValue,
-      },
-      sessionId!.toString()
-    );
-    setContextValue("");
-    setInputValue("");
+  const handleRunModel = (query?: string) => {
+    getPreferences().then(async (preferences) => {
+      const selectedModel = getModelByKey(preferences.defaultModel);
+
+      if (!selectedModel?.baseModel) {
+        throw new Error("Model not found");
+      }
+
+      const apiKey = await getApiKey(selectedModel?.baseModel);
+
+      if (!apiKey) {
+        toast.error("API key is missing. Please check your settings.");
+        openSettings(selectedModel?.baseModel);
+        return;
+      }
+      runModel(
+        {
+          role: RoleType.assistant,
+          type: PromptType.ask,
+          query: query || inputValue,
+          context: contextValue,
+        },
+        sessionId!.toString()
+      );
+      setContextValue("");
+      setInputValue("");
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -278,6 +300,7 @@ export const ChatInput = () => {
             <Input
               value={inputValue}
               ref={inputRef}
+              type="text"
               onChange={(e) => setInputValue(e.currentTarget.value)}
               variant={"ghost"}
               onKeyDown={handleKeyDown}
@@ -318,8 +341,7 @@ export const ChatInput = () => {
       {isNewSession && (
         <ChatExamples
           onExampleClick={(prompt) => {
-            setInputValue(prompt);
-            handleRunModel();
+            handleRunModel(prompt);
           }}
         />
       )}

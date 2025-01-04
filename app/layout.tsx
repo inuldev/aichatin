@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 import { ChatProvider } from "@/context/chat/provider";
 import { FiltersProvider } from "@/context/filter/provider";
 import { SettingsProvider } from "@/context/settings/provider";
@@ -36,15 +37,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <TooltipProvider>
-          <ChatProvider>
-            <SettingsProvider>
+          <SettingsProvider>
+            <ChatProvider>
               <FiltersProvider>
                 <div className="w-full h-screen flex flex-row dark:bg-zinc-800">
                   {children}
+                  <Toaster />
                 </div>
               </FiltersProvider>
-            </SettingsProvider>
-          </ChatProvider>
+            </ChatProvider>
+          </SettingsProvider>
         </TooltipProvider>
       </body>
     </html>

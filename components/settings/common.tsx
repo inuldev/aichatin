@@ -43,7 +43,7 @@ export const CommonSettings = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-start px-6 pb-12 gap-2 max-h-[500px] overflow-y-auto">
+    <div className="flex flex-col items-start px-6 pb-12 gap-2 max-h-[500px] overflow-y-auto no-scrollbar">
       <p className="text-md font-medium text-white py-4">Default Settings</p>
       <div className="flex flex-row items-end justify-between w-full">
         <p className="text-xs text-zinc-500">System Default Prompt</p>

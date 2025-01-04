@@ -71,7 +71,22 @@ export const useChatSession = () => {
     const newSessions = sessions.filter(
       (session: TChatSession) => session.id !== id
     );
+    await set("chat-sessions", newSessions);
+    return newSessions;
+  };
 
+  const removeMessageById = async (sessionId: string, messageId: string) => {
+    const sessions = await getSessions();
+    const newSessions = sessions.map((session) => {
+      if (session.id === sessionId) {
+        const newMessages = session.messages.filter(
+          (message) => message.id !== messageId
+        );
+
+        return { ...session, messages: newMessages };
+      }
+      return session;
+    });
     await set("chat-sessions", newSessions);
     return newSessions;
   };
@@ -167,5 +182,6 @@ export const useChatSession = () => {
     clearSessions,
     sortSessions,
     sortMessages,
+    removeMessageById,
   };
 };
