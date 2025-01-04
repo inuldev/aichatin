@@ -1,14 +1,18 @@
 "use client";
 
+import { toast } from "sonner";
+import Image from "next/image";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowDown,
+  ArrowElbowDownRight,
   ArrowUp,
   ClockClockwise,
   Command,
   Microphone,
+  Paperclip,
   Plus,
   Quotes,
   StarFour,
@@ -39,7 +43,11 @@ import { AudioWaveSpinner } from "./ui/audio-wave";
 import { ModelSelect } from "./model-select";
 import { ChatExamples } from "./chat-examples";
 import { ChatGreeting } from "./chat-greeting";
-import { toast } from "sonner";
+
+export type TAttachment = {
+  file?: File;
+  base64?: string;
+};
 
 export const ChatInput = () => {
   const { sessionId } = useParams();
@@ -63,6 +71,40 @@ export const ChatInput = () => {
     !currentSession?.messages?.length && !streamingMessage?.loading;
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const [attachment, setAttachment] = useState<TAttachment>();
+
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const reader = new FileReader();
+
+    const fileTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"];
+    if (file && !fileTypes.includes(file?.type)) {
+      toast.error("Please select a valid image (PNG, JPEG, GIF, or WebP).");
+      return;
+    }
+
+    reader.onload = () => {
+      if (typeof reader.result !== "string") return;
+      const base64String = reader?.result?.split(",")[1];
+      setAttachment((prev) => ({
+        ...prev,
+        base64: `data:${file?.type};base64,${base64String}`,
+      }));
+    };
+
+    if (file) {
+      setAttachment((prev) => ({
+        ...prev,
+        file,
+      }));
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFileSelect = () => {
+    document.getElementById("fileInput")?.click();
+  };
+
   const { getPreferences, getApiKey } = usePreferences();
   const { getModelByKey } = useModelList();
   const { open: openSettings } = useSettings();
@@ -74,6 +116,9 @@ export const ChatInput = () => {
   }, [sessionId]);
 
   const handleRunModel = (query?: string) => {
+    if (!query && !inputValue) {
+      return;
+    }
     getPreferences().then(async (preferences) => {
       const selectedModel = getModelByKey(preferences.defaultModel);
 
@@ -92,11 +137,13 @@ export const ChatInput = () => {
         {
           role: RoleType.assistant,
           type: PromptType.ask,
+          image: attachment?.base64,
           query: query || inputValue,
           context: contextValue,
         },
         sessionId!.toString()
       );
+      setAttachment(undefined);
       setContextValue("");
       setInputValue("");
     });
@@ -275,7 +322,7 @@ export const ChatInput = () => {
       <div className="flex flex-col gap-1">
         {contextValue && (
           <div className="flex flex-row items-center bg-black/30 text-zinc-300 rounded-xl h-10 w-[700px] justify-start gap-2 pl-3 pr-1">
-            <Quotes size={16} weight="fill" />
+            <ArrowElbowDownRight size={16} weight="fill" />
             <p className="w-full overflow-hidden truncate ml-2 text-sm">
               {contextValue}
             </p>
@@ -289,11 +336,34 @@ export const ChatInput = () => {
             </Button>
           </div>
         )}
+        {attachment?.base64 && attachment?.file && (
+          <div className="flex flex-row items-center bg-black/30 text-zinc-300 rounded-xl h-10 w-[700px] justify-start gap-2 pl-3 pr-1">
+            <ArrowElbowDownRight size={20} weight="bold" />
+            <p className="w-full relative ml-2 text-xs flex flex-row gap-2 items-center">
+              <Image
+                src={attachment.base64}
+                width={0}
+                height={0}
+                alt="uploaded image"
+                className="rounded-xl translate-y[50%] min-w-[60px] h-[60px] border border-white/5 absolute rotate-6 shadow-md object-cover"
+              />
+              <span className="ml-[70px]">{attachment?.file?.name}</span>
+            </p>
+            <Button
+              size={"icon"}
+              variant={"ghost"}
+              onClick={() => setContextValue("")}
+              className="flex-shrink-0 ml-4"
+            >
+              <X size={16} weight="bold" />
+            </Button>
+          </div>
+        )}
         <motion.div
           variants={slideUpVariant}
-          initial="initial"
-          animate="animate"
-          className="flex flex-col items-center bg-white/10 w-[700px] rounded-2xl overflow-hidden"
+          initial={"initial"}
+          animate={"animate"}
+          className="flex flex-col items-center bg-white/5 border border-white/5 w-[700px] rounded-2xl overflow-hidden"
         >
           <div className="flex flex-row items-center px-3 h-14 w-full gap-0">
             {renderNewSession()}
@@ -312,8 +382,9 @@ export const ChatInput = () => {
             {renderRecordingControls()}
             <Button
               size={"icon"}
-              variant={"ghost"}
+              variant={!!inputValue ? "secondary" : "ghost"}
               className="min-w-8 h-8 ml-1"
+              disabled={!inputValue}
               onClick={() => handleRunModel()}
             >
               <ArrowUp size={20} weight="bold" />
@@ -321,9 +392,24 @@ export const ChatInput = () => {
           </div>
           <div className="flex flex-row items-center w-full justify-start gap-2 px-2 pb-2 pt-1">
             <ModelSelect />
+            <input
+              type="file"
+              id="fileInput"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+            <Button
+              variant={"ghost"}
+              size={"sm"}
+              onClick={handleFileSelect}
+              className="px-1.5"
+            >
+              <Paperclip size={16} weight="bold" />
+              Attach
+            </Button>
             <div className="flex-1"></div>
             <Button
-              variant={"secondary"}
+              variant={"ghost"}
               size={"sm"}
               onClick={openFilters}
               className="px-1.5"

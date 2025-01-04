@@ -47,6 +47,8 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
     return undefined;
   };
 
+  const tokenCount = getTokenCount({ model, rawAI: aiMessage });
+
   return (
     <motion.div
       ref={messageRef}
@@ -59,7 +61,7 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
       }}
     >
       {aiMessage && (
-        <div className="pt-4 pb-2">
+        <div className="pt-4 pb-2 w-full">
           {renderMarkdown(aiMessage, id === "streaming")}
         </div>
       )}
@@ -77,12 +79,14 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
             {modelForMessage?.icon()}
             {loading ? <Spinner /> : modelForMessage?.name}{" "}
           </span>
-          <Tooltip content="Estimated output tokens">
-            <span className="flex flex-row gap-1 p-2 items-center cursor-pointer">
-              {`${getTokenCount({ model, rawAI: aiMessage })} tokens`}
-              <Info size={14} weight="bold" />
-            </span>
-          </Tooltip>
+          {tokenCount && (
+            <Tooltip content="Estimated output tokens">
+              <span className="flex flex-row gap-1 p-2 items-center cursor-pointer">
+                {`${getTokenCount({ model, rawAI: aiMessage })} tokens`}
+                <Info size={14} weight="bold" />
+              </span>
+            </Tooltip>
+          )}
         </motion.p>
         {!loading && (
           <div className="flex flex-row gap-1">

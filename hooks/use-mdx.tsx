@@ -96,7 +96,7 @@ export const useMarkdown = () => {
           code: (code, lang) => {
             return (
               <motion.div
-                className="my-4 w-full"
+                className="my-4 w-full flex-shrink-0"
                 initial="hidden"
                 animate="visible"
               >

@@ -58,17 +58,35 @@ export const useLLM = ({
     const systemPrompt =
       preferences.systemPrompt || defaultPreferences.systemPrompt;
 
-    const system: BaseMessagePromptTemplateLike = [
-      "system",
-      `${systemPrompt}. Answer user's question based on the following context:"""{context}""". ${
-        hasPreviousMessages
-          ? "You can also refer these previous conversations if needed:"
-          : ""
-      }`,
-    ];
+    const system: BaseMessagePromptTemplateLike = ["system", `${systemPrompt}`];
 
     const messageHolders = new MessagesPlaceholder("chat_history");
-    const user: BaseMessagePromptTemplateLike = ["user", "{input}"];
+
+    const userContext = `{input} ${
+      props?.context
+        ? `Answer user's question based on the following context: """{context}"""`
+        : ""
+    } ${
+      hasPreviousMessages
+        ? `You can also refer these previous conversations if needed: `
+        : ""
+    }`;
+
+    const user: BaseMessagePromptTemplateLike = [
+      "user",
+      props?.image
+        ? [
+            {
+              type: "text",
+              content: userContext,
+            },
+            {
+              type: "image_url",
+              image_url: props.image,
+            },
+          ]
+        : userContext,
+    ];
 
     const prompt = ChatPromptTemplate.fromMessages([
       system,
@@ -79,7 +97,7 @@ export const useLLM = ({
     const previousMessageHistory = sortMessages(history, "createdAt")
       .slice(0, messageLimit === "all" ? history.length : messageLimit)
       .reduce(
-        (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman }) => [
+        (acc: (HumanMessage | AIMessage)[], { rawAI, rawHuman, image }) => [
           ...acc,
           new HumanMessage(rawHuman),
           new AIMessage(rawAI),
@@ -183,7 +201,20 @@ export const useLLM = ({
       const chatMessage: TChatMessage = {
         id: newMessageId,
         model: selectedModel.key,
-        human: new HumanMessage(props.query),
+        human: props?.image
+          ? new HumanMessage({
+              content: [
+                {
+                  type: "text",
+                  content: streamedMessage,
+                },
+                {
+                  type: "image_url",
+                  image_url: props.image,
+                },
+              ],
+            })
+          : new HumanMessage(props.query),
         ai: new AIMessage(streamedMessage),
         rawHuman: props.query,
         rawAI: streamedMessage,

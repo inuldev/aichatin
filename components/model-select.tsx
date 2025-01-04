@@ -25,18 +25,14 @@ export const ModelSelect = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger>
-        <Button
-          variant="secondary"
-          className="pl-1 pr-3 gap-1 text-xs"
-          size="sm"
-        >
+        <Button variant="ghost" className="pl-1 pr-3 gap-1 text-xs" size="sm">
           {activeModel?.icon()}
           {activeModel?.name}
         </Button>
       </SheetTrigger>
       <SheetContent className="gap-0 overflow-hidden">
         {models.map((model) => (
-          <div className="p-2 max-h-[380px] overflow-y-auto">
+          <div className="p-2 max-h-[380px] overflow-y-auto no-scrollbar">
             <div
               className={cn(
                 "flex flex-row items-center gap-2 px-2 justify-between text-sm hover:bg-white/5 cursor-pointer rounded-2xl"

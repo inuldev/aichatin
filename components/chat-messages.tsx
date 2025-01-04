@@ -1,5 +1,6 @@
 import moment from "moment";
 import "moment/locale/id";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { Quotes, Warning } from "@phosphor-icons/react";
@@ -19,6 +20,7 @@ export type TRenderMessageProps = {
   id: string;
   humanMessage: string;
   props?: PromptProps;
+  image?: string;
   model: TModelKey;
   aiMessage?: string;
   loading?: boolean;
@@ -63,7 +65,7 @@ export const ChatMessages = () => {
               opacity: 1,
               transition: { duration: 1, ease: "easeInOut" },
             }}
-            className="bg-black/30 rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border border-white/5"
+            className="hover:bg-black/30 bg-transparent rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent"
           >
             <Quotes size={16} weight="fill" className="flex-shrink-0 mt-2" />
             <span className="pt-[0.35em] pb-[0.25em] leading-6">
@@ -71,16 +73,25 @@ export const ChatMessages = () => {
             </span>
           </motion.div>
         )}
+        {props?.props?.image && (
+          <Image
+            src={props?.props?.image}
+            alt="uploaded image"
+            width={0}
+            height={0}
+            className="rounded-2xl min-w-[120px] h-[120px] border border-white/5 rotate-6 shadow-md object-cover"
+          />
+        )}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{
             opacity: 1,
             transition: { duration: 1, ease: "easeInOut" },
           }}
-          className="bg-black/30 rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4 border border-white/5"
+          className="hover:bg-black/30 bg-transparent rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent"
         >
           <Avatar name="Chat" size="sm" />
-          <span className="pt-[0.25em] pb-[0.15em] leading-6">
+          <span className="pt-[0.20em] pb-[0.15em] leading-6">
             {humanMessage}
           </span>
         </motion.div>
@@ -107,7 +118,7 @@ export const ChatMessages = () => {
     <div
       ref={chatContainer}
       id="chat-container"
-      className="flex flex-col w-full items-center h-screen overflow-y-auto pt-[60px] pb-[200px]"
+      className="flex flex-col no-scrollbar w-full items-center h-screen overflow-y-auto pt-[60px] pb-[200px]"
     >
       <motion.div
         initial={{ opacity: 0 }}
@@ -128,6 +139,7 @@ export const ChatMessages = () => {
                       id: message.id,
                       humanMessage: message.rawHuman,
                       model: message.model,
+                      image: message.image,
                       props: message.props,
                       aiMessage: message.rawAI,
                     })
@@ -144,6 +156,7 @@ export const ChatMessages = () => {
             id: "streaming",
             humanMessage: streamingMessage?.props?.query,
             aiMessage: streamingMessage?.message,
+            image: streamingMessage.props?.image,
             model: streamingMessage?.model,
             loading: streamingMessage?.loading,
           })}

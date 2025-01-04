@@ -36,6 +36,8 @@ export const useModelList = () => {
       preferences.temperature || defaultPreferences.temperature;
     const topP = preferences.topP || defaultPreferences.topP;
     const topK = preferences.topK || defaultPreferences.topK;
+    const maxTokens = preferences.maxTokens || model.tokens;
+
     switch (model.baseModel) {
       case "openai":
         return new ChatOpenAI({
@@ -43,6 +45,7 @@ export const useModelList = () => {
           streaming: true,
           apiKey,
           temperature,
+          maxTokens,
           topP,
         });
       case "anthropic":
@@ -52,6 +55,7 @@ export const useModelList = () => {
           anthropicApiUrl: `${window.location.origin}/api/anthropic`,
           apiKey,
           temperature,
+          maxTokens,
           topP,
           topK,
         });
@@ -61,6 +65,7 @@ export const useModelList = () => {
           streaming: true,
           apiKey,
           temperature,
+          maxOutputTokens: maxTokens,
           topP,
           topK,
         });

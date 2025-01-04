@@ -10,6 +10,7 @@ export type TPreferences = {
   temperature: number;
   topP: number;
   topK: number;
+  maxTokens: number;
 };
 
 export const defaultPreferences: TPreferences = {
@@ -19,6 +20,7 @@ export const defaultPreferences: TPreferences = {
   temperature: 0.5,
   topP: 1.0,
   topK: 5,
+  maxTokens: 1000,
 };
 
 export const usePreferences = () => {

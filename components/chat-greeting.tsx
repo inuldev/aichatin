@@ -6,11 +6,11 @@ export const ChatGreeting = () => {
     const date = moment();
     const hours = date.get("hour");
     if (hours >= 0 && hours < 12) {
-      return `Selamat pagi, ${name}!`;
+      return `Selamat pagi,!`;
     } else if (hours >= 12 && hours < 18) {
-      return `Selamat siang, ${name}!`;
+      return `Selamat siang,`;
     } else {
-      return `Selamat malam, ${name}!`;
+      return `Selamat malam,`;
     }
   };
 
