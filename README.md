@@ -29,7 +29,9 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ---
 
 If you want to learn how to create it please follow below tutorial👇:
-➡ Tutorial Link 💚 "Kuluru Vineeth" Youtube Channel: [Build Your AI Chat Platform | ChatHub | Next.js, OpenAI, Gemini, Claude, Ollama, Langchain](https://www.youtube.com/watch?v=mgmFd9FIu7M)
+➡ Tutorial Link 💚 "Kuluru Vineeth" Youtube Channel: [Build Your AI Chat Platform | ChatHub | Next.js, OpenAI, Gemini, Claude, Ollama, Langchain | Part 1🚀](https://www.youtube.com/watch?v=mgmFd9FIu7M)
+
+➡ Tutorial Link 💚 "Kuluru Vineeth" Youtube Channel: [Build Your AI Chat Platform | ChatHub | Next.js, OpenAI, Gemini, Claude, Ollama, Langchain | Part 2🚀](https://www.youtube.com/watch?v=qfvow6jz8NM)
 
 ## Learn More
 
