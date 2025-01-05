@@ -1,8 +1,16 @@
 "use client";
 
 import moment from "moment";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Chat, Eraser, Plus, TrashSimple } from "@phosphor-icons/react";
+import {
+  Chat,
+  Eraser,
+  Moon,
+  Plus,
+  Sun,
+  TrashSimple,
+} from "@phosphor-icons/react";
 
 import { FiltersContext } from "./context";
 import {
@@ -23,6 +31,7 @@ export type TFiltersProvider = {
 
 export const FiltersProvider = ({ children }: TFiltersProvider) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
   const open = () => setIsFilterOpen(true);
   const dismiss = () => setIsFilterOpen(false);
 
@@ -70,6 +79,21 @@ export const FiltersProvider = ({ children }: TFiltersProvider) => {
             >
               <Plus size={14} weight="bold" />
               New session
+            </CommandItem>
+            <CommandItem
+              className="gap-3"
+              value="theme"
+              onSelect={(value) => {
+                setTheme(theme === "light" ? "dark" : "light");
+                dismiss();
+              }}
+            >
+              {theme === "light" ? (
+                <Moon size={14} weight="bold" />
+              ) : (
+                <Sun size={14} weight="bold" />
+              )}
+              Switch to {theme === "light" ? "dark" : "light"} mode
             </CommandItem>
             <CommandItem
               className="gap-3"

@@ -1,39 +1,35 @@
 "use client";
 
-import { DotsThree } from "@phosphor-icons/react";
-
-import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
+import { Navbar } from "@/components/navbar";
 import { ChatInput } from "@/components/chat-input";
-import { useSettings } from "@/context/settings/contex";
-import { ModelIcon } from "@/components/icons/model-icon";
+import { useChatContext } from "@/context/chat/context";
 import { ChatMessages } from "@/components/chat-messages";
 
+import Spinner from "@/components/ui/loading-spinner";
+
 const ChatSessionPage = () => {
-  const { open } = useSettings();
+  const { isCurrentSessionLoading, isAllSessionLoading } = useChatContext();
+
+  const renderLoader = () => {
+    return (
+      <div className="w-full h-full flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
+  };
+
+  const isLoading = isCurrentSessionLoading || isAllSessionLoading;
 
   return (
     <div className="w-full h-screen flex flex-row relative overflow-hidden">
-      <div className="absolute flex justify-between items-center flex-row top-0 left-4 right-4 bg-gradient-to-b dark:from-zinc-800 dark:to-transparent from-70% to-white/10 z-10">
-        <div className="flex flex-row gap-0 items-center">
-          <ModelIcon type="aichatin" size="md" />
-          <p className="p-2 text-sm text-zinc-500">AIchatIn</p>
-        </div>
-        <div className="flex flex-row gap-2 items-center">
-          <Avatar name="Chat" size={"sm"} />
-          <Button
-            variant={"secondary"}
-            size={"icon"}
-            onClick={() => {
-              open();
-            }}
-          >
-            <DotsThree size={20} weight="bold" />
-          </Button>
-        </div>
-      </div>
-      <ChatMessages />
-      <ChatInput />
+      <Navbar />
+      {isLoading && renderLoader()}
+      {!isLoading && (
+        <>
+          <ChatMessages />
+          <ChatInput />
+        </>
+      )}
     </div>
   );
 };

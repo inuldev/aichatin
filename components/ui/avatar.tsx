@@ -5,9 +5,10 @@ import { cn } from "@/lib/utils";
 export type TAvatar = {
   name: string;
   size?: "sm" | "md" | "lg";
+  className?: string;
 };
 
-export const Avatar = ({ name, size = "md" }: TAvatar) => {
+export const Avatar = ({ name, size = "md", className }: TAvatar) => {
   const sizes = {
     sm: 28,
     md: 32,
@@ -17,22 +18,16 @@ export const Avatar = ({ name, size = "md" }: TAvatar) => {
   return (
     <div
       className={cn(
-        "rounded-full relative",
-        size === "sm" && "w-7 h-7",
-        size === "md" && "w-8 h-8",
-        size === "lg" && "w-12 h-12"
+        "rounded-full relative text-zinc-400 dark:text-white dark:bg-white/10 bg-black/80",
+        size === "sm" && "min-w-7 h-7",
+        size === "md" && "min-w-8 h-8",
+        size === "lg" && "min-w-12 h-12",
+        className
       )}
     >
-      <BoringAvatar
-        name={name}
-        size={sizes[size]}
-        variant="marble"
-        colors={["#ffffff"]}
-      >
-        <p className="text-zinc-900/70 font-bold uppercase absolute inset-0 flex items-center justify-center">
-          {name?.[0]}
-        </p>
-      </BoringAvatar>
+      <p className="font-bold uppercase absolute inset-0 flex items-center justify-center">
+        {name?.[0]}
+      </p>
     </div>
   );
 };

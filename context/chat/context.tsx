@@ -2,13 +2,14 @@
 
 import { createContext, useContext } from "react";
 
-import { PromptProps, TChatSession } from "@/hooks/use-chat-session";
 import { TStreamProps } from "@/hooks/use-llm";
+import { PromptProps, TChatSession } from "@/hooks/use-chat-session";
 
 export type TChatContext = {
   sessions: TChatSession[];
   refetchSessions: () => void;
-  isSessionLoading: boolean;
+  isAllSessionLoading: boolean;
+  isCurrentSessionLoading: boolean;
   createSession: () => Promise<TChatSession>;
   clearChatSessions: () => Promise<void>;
   currentSession: TChatSession | undefined;

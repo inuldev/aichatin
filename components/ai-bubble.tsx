@@ -52,7 +52,7 @@ export const AIMessageBubble = (props: TRenderMessageProps) => {
   return (
     <motion.div
       ref={messageRef}
-      className="bg-white/5 rounded-2xl p-4 pt-4 pb-2 w-full border border-white/5 flex flex-col items-start"
+      className="dark:bg-white/5 bg-black/5 hover:bg-zinc-100 rounded-2xl px-4 w-full flex flex-col items-start"
       initial={{ opacity: 0, y: 10 }}
       animate={{
         opacity: 1,

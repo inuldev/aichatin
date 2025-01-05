@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
+
+import { MainLayout } from "@/components/main-layout";
 import { ChatProvider } from "@/context/chat/provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { FiltersProvider } from "@/context/filter/provider";
 import { SettingsProvider } from "@/context/settings/provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,22 +34,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TooltipProvider>
-          <SettingsProvider>
-            <ChatProvider>
-              <FiltersProvider>
-                <div className="w-full h-screen flex flex-row dark:bg-zinc-800">
-                  {children}
-                  <Toaster />
-                </div>
-              </FiltersProvider>
-            </ChatProvider>
-          </SettingsProvider>
-        </TooltipProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            <SettingsProvider>
+              <ChatProvider>
+                <FiltersProvider>
+                  <MainLayout>{children}</MainLayout>
+                </FiltersProvider>
+              </ChatProvider>
+            </SettingsProvider>
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

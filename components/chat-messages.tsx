@@ -3,7 +3,7 @@ import "moment/locale/id";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
-import { Quotes, Warning } from "@phosphor-icons/react";
+import { ArrowElbowDownRight, Quotes, Warning } from "@phosphor-icons/react";
 
 import { getRelativeDate } from "@/lib/date";
 import { useMarkdown } from "@/hooks/use-mdx";
@@ -65,9 +65,13 @@ export const ChatMessages = () => {
               opacity: 1,
               transition: { duration: 1, ease: "easeInOut" },
             }}
-            className="hover:bg-black/30 bg-transparent rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent"
+            className="bg-zinc-800 text-zinc-200 dark:bg-black/30 bg-transparent rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent"
           >
-            <Quotes size={16} weight="fill" className="flex-shrink-0 mt-2" />
+            <ArrowElbowDownRight
+              size={20}
+              weight="fill"
+              className="flex-shrink-0"
+            />
             <span className="pt-[0.35em] pb-[0.25em] leading-6">
               {props.props?.context}
             </span>
@@ -88,7 +92,7 @@ export const ChatMessages = () => {
             opacity: 1,
             transition: { duration: 1, ease: "easeInOut" },
           }}
-          className="hover:bg-black/30 bg-transparent rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent"
+          className="bg-zinc-800 text-zinc-200 dark:bg-black/30 bg-transparent rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4"
         >
           <Avatar name="Chat" size="sm" />
           <span className="pt-[0.20em] pb-[0.15em] leading-6">
