@@ -194,7 +194,7 @@ export const CommonSettings = () => {
             }}
           />
           <div className="flex flex-row justify-between w-full">
-            <p className="text-xs text-zinc-300">Precise</p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-600">Precise</p>
             <p className="text-xs text-zinc-400 dark:text-zinc-600">Neutral</p>
             <p className="text-xs text-zinc-400 dark:text-zinc-600">Creative</p>
           </div>

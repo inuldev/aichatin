@@ -4,8 +4,9 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Resizer from "react-image-file-resizer";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import TextareaAutosize from "react-textarea-autosize";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowElbowDownRight,
@@ -34,15 +35,23 @@ import { useRecordVoice } from "@/hooks/use-record-voice";
 import { useTextSelection } from "@/hooks/use-text-selection";
 import useScrollToBottom from "@/hooks/use-scroll-to-bottom";
 
-import { Input } from "./ui/input";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Tooltip } from "./ui/tooltip";
 import { AudioWaveSpinner } from "./ui/audio-wave";
+import { Popover, PopoverAnchor, PopoverContent } from "./ui/popover";
+import {
+  Command as CMDKCommand,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./ui/command";
 
 import { ModelSelect } from "./model-select";
 import { ChatExamples } from "./chat-examples";
 import { ChatGreeting } from "./chat-greeting";
+import { examplePrompts } from "@/lib/prompts";
 
 export type TAttachment = {
   file?: File;
@@ -71,6 +80,7 @@ export const ChatInput = () => {
     !currentSession?.messages?.length && !streamingMessage?.loading;
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
   const [attachment, setAttachment] = useState<TAttachment>();
 
   const resizeFile = (file: File) =>
@@ -175,8 +185,10 @@ export const ChatInput = () => {
     });
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const keyCode = e?.which || e?.keyCode;
+
+    if (keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
       handleRunModel();
     }
@@ -427,65 +439,90 @@ export const ChatInput = () => {
       <div className="flex flex-col gap-1">
         {renderSelectedContext()}
         {renderAttachedImage()}
-        <motion.div
-          variants={slideUpVariant}
-          initial={"initial"}
-          animate={"animate"}
-          className="flex flex-col items-center bg-white shadow-sm border-black/10 dark:bg-white/5 border dark:border-white/5 w-[700px] rounded-2xl overflow-hidden"
-        >
-          <div className="flex flex-row items-center px-3 h-14 w-full gap-0">
-            {renderNewSession()}
-            <Input
-              value={inputValue}
-              ref={inputRef}
-              type="text"
-              onChange={(e) => setInputValue(e.currentTarget.value)}
-              variant={"ghost"}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything..."
-              className="px-2"
-              autoComplete="off"
-              autoCapitalize="off"
-            />
-            {renderRecordingControls()}
-            <Button
-              size={"icon"}
-              variant={!!inputValue ? "secondary" : "ghost"}
-              className="min-w-8 h-8 ml-1"
-              disabled={!inputValue}
-              onClick={() => handleRunModel()}
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverAnchor>
+            <motion.div
+              variants={slideUpVariant}
+              initial={"initial"}
+              animate={"animate"}
+              className="flex flex-col gap-0 bg-white shadow-sm border-black/10 dark:bg-white/5 border dark:border-white/5 w-[700px] rounded-[1.25em] overflow-hidden"
             >
-              <ArrowUp size={20} weight="bold" />
-            </Button>
-          </div>
-          <div className="flex flex-row items-center w-full justify-start gap-2 px-2 pb-2 pt-1">
-            <ModelSelect />
-            {renderFileUpload()}
-            <div className="flex-1" />
-            <Button
-              variant={"ghost"}
-              size={"sm"}
-              onClick={openFilters}
-              className="px-1.5"
-            >
-              <ClockClockwise size={16} weight="bold" />
-              History
-              <Badge>
-                <Command size={12} weight="bold" /> K
-              </Badge>
-            </Button>
-          </div>
-        </motion.div>
+              <div className="flex flex-row items-center px-3 h-14 pt-3 w-full gap-0">
+                {renderNewSession()}
+                <TextareaAutosize
+                  minRows={1}
+                  maxRows={6}
+                  placeholder="Ask me anything..."
+                  value={inputValue}
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  onChange={(e) => {
+                    if (e.target.value === "/") {
+                      setOpen(true);
+                    }
+                    setInputValue(e.currentTarget.value);
+                  }}
+                  onKeyDown={handleKeyDown}
+                  className="px-2 py-1.5 w-full text-sm leading-5 tracking-[0.01em] border-none resize-none bg-transparent outline-none no-scrollbar"
+                />
+                {renderRecordingControls()}
+                <Button
+                  size={"icon"}
+                  variant={!!inputValue ? "secondary" : "ghost"}
+                  className="min-w-8 h-8 ml-1"
+                  disabled={!inputValue}
+                  onClick={() => handleRunModel()}
+                >
+                  <ArrowUp size={20} weight="bold" />
+                </Button>
+              </div>
+              <div className="flex flex-row items-center w-full justify-start gap-2 px-2 pb-2 pt-1">
+                <ModelSelect />
+                {renderFileUpload()}
+                <div className="flex-1" />
+                <Button
+                  variant={"ghost"}
+                  size={"sm"}
+                  onClick={openFilters}
+                  className="px-1.5"
+                >
+                  <ClockClockwise size={16} weight="bold" />
+                  History
+                  <Badge>
+                    <Command size={12} weight="bold" /> K
+                  </Badge>
+                </Button>
+              </div>
+            </motion.div>
+          </PopoverAnchor>
+          <PopoverContent className="w-[700px] p-0 rounded-2xl overflow-hidden">
+            <CMDKCommand>
+              <CommandInput placeholder="Search prompts..." className="h-9" />
+              <CommandEmpty>No prompt found.</CommandEmpty>
+              <CommandList className="p-1">
+                {examplePrompts?.map((example, index) => (
+                  <CommandItem
+                    key={index}
+                    onSelect={() => {
+                      setInputValue(example.prompt);
+                      inputRef?.current?.focus();
+                      setOpen(false);
+                    }}
+                  >
+                    {example.title}
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </CMDKCommand>
+          </PopoverContent>
+        </Popover>
       </div>
-
-      {isNewSession && (
-        <ChatExamples
-          show={isNewSession}
-          onExampleClick={(prompt) => {
-            handleRunModel(prompt);
-          }}
-        />
-      )}
+      <ChatExamples
+        show={isNewSession}
+        onExampleClick={(prompt) => {
+          handleRunModel(prompt);
+        }}
+      />
     </div>
   );
 };
