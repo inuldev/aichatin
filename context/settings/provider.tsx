@@ -82,8 +82,8 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
         <DialogContent className="min-w-[800px] h-[600px] flex flex-row overflow-hidden border border-white/5 p-0">
           <DialogTitle className="sr-only">Settings</DialogTitle>
           <DialogDescription className="sr-only">Settings</DialogDescription>
-          <div className="w-[250px] bg-black/10 p-2 left-0 top-0 bottom-0 flex flex-col">
-            <p className="px-2 py-2 text-xs font-semibold text-white/30">
+          <div className="w-[250px] dark:bg-black/10 bg-black/5 p-2 left-0 top-0 bottom-0 flex flex-col">
+            <p className="px-2 py-2 text-xs font-semibold text-zinc-500">
               GENERAL
             </p>
             {settingMenu.map((menu) => (
@@ -91,14 +91,14 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
                 key={menu.key}
                 variant={selectedMenu === menu.key ? "secondary" : "ghost"}
                 onClick={() => setSelectedMenu(menu.key)}
-                className="justify-start gap-3 px-3"
+                className="justify-start gap-2 px-2"
                 size={"default"}
               >
                 {menu.icon()}
                 {menu.name}
               </Button>
             ))}
-            <p className="px-2 py-2 text-xs font-semibold text-white/30">
+            <p className="px-2 py-2 text-xs font-semibold text-zinc-500">
               MODELS
             </p>
             {modelsMenu.map((menu) => (
@@ -106,7 +106,7 @@ export const SettingsProvider = ({ children }: TSettingsProvider) => {
                 key={menu.key}
                 variant={selectedMenu === menu.key ? "secondary" : "ghost"}
                 onClick={() => setSelectedMenu(menu.key)}
-                className="justify-start gap-3 px-3"
+                className="justify-start gap-2 px-2"
                 size={"default"}
               >
                 {menu.icon()}

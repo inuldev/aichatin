@@ -19,9 +19,11 @@ export const ChatGreeting = () => {
       <motion.h1
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, transition: { duration: 1 } }}
-        className="text-2xl font-semibold tracking-tight text-zinc-800 dark:text-zinc-100"
+        className="text-2xl font-semibold tracking-tight text-zinc-700 dark:text-zinc-100"
       >
-        <span className="text-zinc-500">{renderGreeting("Guest")} 👋</span>
+        <span className="dark:text-zinc-500 text-zinc-400">
+          {renderGreeting("Guest")} 👋
+        </span>
         <br />
         How can I help you with? ✨
       </motion.h1>

@@ -20,7 +20,9 @@ export const GeminiSettings = () => {
 
   return (
     <div className="px-6 flex flex-col items-start gap-2">
-      <p className="text-md font-medium text-white py-4">GEMINI Settings</p>
+      <p className="text-md font-medium dark:text-white text-zinc-600 py-4">
+        GEMINI Settings
+      </p>
       <div className="flex flex-row items-end justify-between">
         <p className="text-xs text-zinc-500">Gemini API Key</p>
       </div>
