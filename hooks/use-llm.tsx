@@ -6,6 +6,7 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
+import { LLMResult } from "@langchain/core/outputs";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import type { Serialized } from "@langchain/core/load/serializable";
 
@@ -13,15 +14,19 @@ import { PromptProps, TChatMessage, useChatSession } from "./use-chat-session";
 import { defaultPreferences, usePreferences } from "./use-preferences";
 import { TModelKey, useModelList } from "./use-model-list";
 
-import { getInstruction, getRole } from "@/lib/prompts";
-import { LLMResult } from "@langchain/core/outputs";
-
 export type TUseLLM = {
   onInit: (props: TChatMessage) => Promise<void>;
   onStreamStart: (props: TChatMessage) => Promise<void>;
   onStream: (props: TChatMessage) => Promise<void>;
   onStreamEnd: (props: TChatMessage) => Promise<void>;
   onError: (props: TChatMessage) => Promise<void>;
+};
+
+export type TRunModel = {
+  props: PromptProps;
+  sessionId: string;
+  messageId?: string;
+  model?: TModelKey;
 };
 
 export const useLLM = ({
@@ -98,14 +103,27 @@ export const useLLM = ({
         []
       );
 
-    return await prompt.formatMessages({
+    prompt.format({
       chat_history: previousMessageHistory || [],
       context: props.context,
       input: props.query,
     });
+
+    const formattedChatPrompt = await prompt.formatMessages({
+      chat_history: previousMessageHistory || [],
+      context: props.context,
+      input: props.query,
+    });
+
+    return formattedChatPrompt;
   };
 
-  const runModel = async (props: PromptProps, sessionId: string) => {
+  const runModel = async ({
+    sessionId,
+    messageId,
+    props,
+    model,
+  }: TRunModel) => {
     const currentSession = await getSessionById(sessionId);
 
     if (!props?.query) {
@@ -114,9 +132,9 @@ export const useLLM = ({
 
     moment.locale("id");
 
-    const newMessageId = v4();
+    const newMessageId = messageId || v4();
     const preferences = await getPreferences();
-    const modelKey = preferences.defaultModel;
+    const modelKey = model || preferences.defaultModel;
     onInit({
       id: newMessageId,
       props,
@@ -128,12 +146,12 @@ export const useLLM = ({
       isLoading: true,
     });
 
-    const selectedModel = getModelByKey(modelKey);
-    if (!selectedModel) {
+    const selectedModelKey = getModelByKey(modelKey);
+    if (!selectedModelKey) {
       throw new Error("Model not found");
     }
 
-    const apiKey = await getApiKey(selectedModel?.baseModel);
+    const apiKey = await getApiKey(selectedModelKey?.baseModel);
 
     if (!apiKey) {
       onError({
@@ -154,9 +172,10 @@ export const useLLM = ({
       currentSession?.messages || []
     );
 
-    const model = await createInstance(selectedModel, apiKey);
+    const selectedModel = await createInstance(selectedModelKey, apiKey);
+    selectedModel.bind({ signal: abortController.signal });
 
-    const stream = await model.stream(formattedChatPrompt, {
+    const stream = await selectedModel.stream(formattedChatPrompt, {
       options: {
         stream: true,
         signal: abortController.signal,

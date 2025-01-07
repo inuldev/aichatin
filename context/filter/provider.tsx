@@ -14,6 +14,7 @@ import {
 } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
+import { useModelList } from "@/hooks/use-model-list";
 import { useChatSession } from "@/hooks/use-chat-session";
 import {
   CommandDialog,
@@ -34,6 +35,7 @@ export type TFiltersProvider = {
 export const FiltersProvider = ({ children }: TFiltersProvider) => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { getModelByKey } = useModelList();
   const open = () => setIsFilterOpen(true);
   const dismiss = () => setIsFilterOpen(false);
 
@@ -165,12 +167,8 @@ export const FiltersProvider = ({ children }: TFiltersProvider) => {
                   dismiss();
                 }}
               >
-                <StarFour
-                  size={14}
-                  weight="bold"
-                  className="text-zinc-500 flex-shrink-0"
-                />
-                <span>{session.title}</span>
+                {getModelByKey(session.messages?.[0]?.model)?.icon()}
+                <span className="w-full truncate">{session.title}</span>
                 <span className="pl-4 text-xs text-zinc-400 dark:text-zinc-700 flex-shrink-0">
                   {moment(session.createdAt).fromNow(true)}
                 </span>

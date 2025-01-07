@@ -24,7 +24,7 @@ import {
 } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
-import { examplePrompts } from "@/lib/prompts";
+import { examplePrompts, roles } from "@/lib/prompts";
 import { slideUpVariant } from "@/lib/framer-motion";
 import { useFilters } from "@/context/filter/context";
 import { useModelList } from "@/hooks/use-model-list";
@@ -77,6 +77,7 @@ export const ChatInput = () => {
   const [commandInput, setCommandInput] = useState("");
   const [open, setOpen] = useState(false);
   const [attachment, setAttachment] = useState<TAttachment>();
+  const [selectedPrompt, setSelectedPrompt] = useState<string>();
 
   const focusToInput = () => {
     if (inputRef.current) {
@@ -162,16 +163,16 @@ export const ChatInput = () => {
         openSettings(selectedModel?.baseModel);
         return;
       }
-      runModel(
-        {
+      runModel({
+        props: {
           role: RoleType.assistant,
           type: PromptType.ask,
           image: attachment?.base64,
           query: query || inputValue,
           context: contextValue,
         },
-        sessionId!.toString()
-      );
+        sessionId: sessionId!.toString(),
+      });
       setAttachment(undefined);
       setContextValue("");
       setInputValue("");
@@ -179,7 +180,7 @@ export const ChatInput = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const keyCode = e?.which || e?.keyCode;
+    const keyCode = e?.key === "Enter" ? 13 : undefined;
 
     if (keyCode === 13 && !e.shiftKey) {
       e.preventDefault();
@@ -189,7 +190,7 @@ export const ChatInput = () => {
 
   useEffect(() => {
     if (sessionId) {
-      inputRef?.current?.focus();
+      inputRef.current?.focus();
     }
   }, [sessionId]);
 
@@ -198,14 +199,14 @@ export const ChatInput = () => {
   useEffect(() => {
     if (text) {
       setInputValue(text);
-      runModel(
-        {
+      runModel({
+        props: {
           role: RoleType.assistant,
           type: PromptType.ask,
           query: text,
         },
-        sessionId!.toString()
-      );
+        sessionId: sessionId!.toString(),
+      });
       setInputValue("");
     }
   }, [text]);
@@ -329,7 +330,7 @@ export const ChatInput = () => {
           variant={"secondary"}
           size={"sm"}
         >
-          <Stop size={20} weight={"bold"} />
+          <Stop size={20} weight={"bold"} /> Stop
         </Button>
       </motion.span>
     );
@@ -446,8 +447,26 @@ export const ChatInput = () => {
               variants={slideUpVariant}
               initial={"initial"}
               animate={"animate"}
-              className="flex flex-col gap-0 bg-white shadow-sm border-black/10 dark:bg-white/5 border dark:border-white/5 w-[700px] rounded-[1.25em] overflow-hidden"
+              className="flex flex-col items-start gap-0 bg-white shadow-sm border-black/10 dark:bg-white/5 border dark:border-white/5 w-[700px] rounded-[1.25em] overflow-hidden"
             >
+              {selectedPrompt && (
+                <div className="px-1 pt-1 w-full">
+                  <div className="pl-3 pr-2 py-2 bg-black/10 rounded-t-2xl flex flex-row items-center rounded-b-md w-full text-xs text-zinc-600">
+                    <p className="w-full">{selectedPrompt}</p>
+                    <Button
+                      size={"iconXS"}
+                      variant={"ghost"}
+                      onClick={() => {
+                        setSelectedPrompt(undefined);
+                        focusToInput();
+                      }}
+                      className="flex-shrink-0 ml-4"
+                    >
+                      <X size={16} weight="bold" />
+                    </Button>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-row items-center px-3 h-14 pt-3 w-full gap-0">
                 {renderNewSession()}
                 <TextareaAutosize
@@ -516,17 +535,18 @@ export const ChatInput = () => {
                 }}
               />
               <CommandEmpty>No prompt found.</CommandEmpty>
-              <CommandList className="p-1">
-                {examplePrompts?.map((example, index) => (
+              <CommandList className="p-1 max-h-[140px]">
+                {roles?.map((role, index) => (
                   <CommandItem
                     key={index}
                     onSelect={() => {
-                      setInputValue(example.prompt);
+                      setInputValue(role.content);
+                      setSelectedPrompt(role.name);
                       inputRef?.current?.focus();
                       setOpen(false);
                     }}
                   >
-                    {example.title}
+                    {role.name}
                   </CommandItem>
                 ))}
               </CommandList>

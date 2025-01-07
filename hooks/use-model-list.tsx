@@ -17,15 +17,16 @@ export type TModelKey =
   | "claude-3-sonnet-20240229"
   | "claude-3-haiku-20240307"
   | "gemini-1.5-pro-latest"
-  | "gemini-pro";
+  | "gemini-pro"
+  | "gemini-1.5-flash-latest";
 
 export type TModel = {
   name: string;
   key: TModelKey;
+  isNew?: boolean;
   icon: () => JSX.Element;
   tokens: number;
   baseModel: TBaseModel;
-  isNew?: boolean;
 };
 
 export const useModelList = () => {
@@ -143,6 +144,14 @@ export const useModelList = () => {
     {
       name: "Gemini Pro",
       key: "gemini-pro",
+      tokens: 200000,
+      isNew: false,
+      icon: () => <ModelIcon type="gemini" size="md" />,
+      baseModel: "gemini",
+    },
+    {
+      name: "Gemini Flash 1.5",
+      key: "gemini-1.5-flash-latest",
       tokens: 200000,
       isNew: false,
       icon: () => <ModelIcon type="gemini" size="md" />,

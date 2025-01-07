@@ -48,24 +48,24 @@ export const ChatMessages = () => {
   // const isLastStreamBelongsToCurrentSession =
   //   streamingMessage?.sessionId === currentSession?.id;
 
-  const renderMessage = (props: TChatMessage) => {
+  const renderMessage = (message: TChatMessage, isLast: boolean) => {
     return (
-      <div className="flex flex-col gap-1 items-end w-full">
-        {props.props?.context && (
-          <div className="bg-black/10 text-zinc-600 dark:bg-black/30 rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent">
+      <div className="flex flex-col gap-1 items-end w-full" key={message.id}>
+        {message.props?.context && (
+          <div className="bg-black/10 text-zinc-600 dark:text-zinc-100 dark:bg-black/30 rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent">
             <ArrowElbowDownRight
               size={20}
               weight="fill"
               className="flex-shrink-0"
             />
             <span className="pt-[0.35em] pb-[0.25em] leading-6">
-              {props.props?.context}
+              {message.props?.context}
             </span>
           </div>
         )}
-        {props?.props?.image && (
+        {message?.props?.image && (
           <Image
-            src={props?.props?.image}
+            src={message?.props?.image}
             alt="uploaded image"
             width={0}
             height={0}
@@ -75,11 +75,11 @@ export const ChatMessages = () => {
         )}
         <div className="bg-black/10 text-zinc-600 dark:bg-black/30 rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4">
           <span className="pt-[0.20em] pb-[0.15em] leading-6">
-            {props.rawHuman}
+            {message.rawHuman}
           </span>
         </div>
 
-        <AIMessageBubble {...props} />
+        <AIMessageBubble chatMessage={message} isLast={isLast} />
       </div>
     );
   };
@@ -129,7 +129,12 @@ export const ChatMessages = () => {
           })} */}
 
         <div className="flex flex-col gap-8 w-full items-start">
-          {currentSession?.messages?.map((message) => renderMessage(message))}
+          {currentSession?.messages?.map((message, index) =>
+            renderMessage(
+              message,
+              currentSession?.messages.length - 1 === index
+            )
+          )}
         </div>
 
         {/* {isLastStreamBelongsToCurrentSession &&

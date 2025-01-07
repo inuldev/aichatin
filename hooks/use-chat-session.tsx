@@ -1,9 +1,9 @@
-import { get, set } from "idb-keyval";
+import moment from "moment";
+import "moment/locale/id";
 import { v4 } from "uuid";
+import { get, set } from "idb-keyval";
 
 import { TModelKey } from "./use-model-list";
-import { AIMessage, HumanMessage } from "@langchain/core/messages";
-import moment from "moment";
 
 export enum PromptType {
   ask = "ask",
@@ -28,7 +28,6 @@ export type PromptProps = {
   role: RoleType;
   query?: string;
   image?: string;
-  regenerate?: boolean;
 };
 
 export type TChatMessage = {
@@ -94,6 +93,8 @@ export const useChatSession = () => {
     return newSessions;
   };
 
+  moment.locale("id");
+
   const addMessageToSession = async (
     sessionId: string,
     chatMessage: TChatMessage
@@ -102,16 +103,27 @@ export const useChatSession = () => {
     const newSessions = sessions.map((session: TChatSession) => {
       if (session.id === sessionId) {
         if (!session?.messages?.length) {
+          const isExistingMessage = session.messages.find(
+            (m) => m.id === chatMessage.id
+          );
           return {
             ...session,
-            messages: [...session.messages, chatMessage],
+            messages: isExistingMessage
+              ? session.messages.map((m) => {
+                  if (m.id === chatMessage.id) {
+                    return chatMessage;
+                  }
+                  return m;
+                })
+              : [...session.messages, chatMessage],
             title: chatMessage.rawHuman,
             updatedAt: moment().toISOString(),
           };
         }
         return {
           ...session,
-          messages: [...session.messages, chatMessage],
+          messages: [chatMessage],
+          title: chatMessage.rawHuman,
           updatedAt: moment().toISOString(),
         };
       }
