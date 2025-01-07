@@ -5,15 +5,12 @@ import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { ArrowElbowDownRight, Quotes, Warning } from "@phosphor-icons/react";
 
-import { getRelativeDate } from "@/lib/date";
-import { useMarkdown } from "@/hooks/use-mdx";
 import { TModelKey } from "@/hooks/use-model-list";
 import { useChatContext } from "@/context/chat/context";
 import { PromptProps, TChatMessage } from "@/hooks/use-chat-session";
 
 import { Avatar } from "./ui/avatar";
 import { AIMessageBubble } from "./ai-bubble";
-import { LabelDivider } from "./ui/label-divider";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 export type TRenderMessageProps = {
@@ -29,9 +26,7 @@ export type TRenderMessageProps = {
 export type TMessageListByDate = Record<string, TChatMessage[]>;
 
 export const ChatMessages = () => {
-  const { streamingMessage, currentSession } = useChatContext();
-  const { renderMarkdown } = useMarkdown();
-
+  const { currentSession } = useChatContext();
   const chatContainer = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,29 +39,20 @@ export const ChatMessages = () => {
     }
   };
 
-  useEffect(() => {
-    if (streamingMessage) {
-      scrollToBottom();
-    }
-  }, [streamingMessage]);
+  // useEffect(() => {
+  //   if (streamingMessage) {
+  //     scrollToBottom();
+  //   }
+  // }, [streamingMessage]);
 
-  const isLastStreamBelongsToCurrentSession =
-    streamingMessage?.sessionId === currentSession?.id;
+  // const isLastStreamBelongsToCurrentSession =
+  //   streamingMessage?.sessionId === currentSession?.id;
 
-  const renderMessage = (props: TRenderMessageProps) => {
-    const { id, humanMessage, aiMessage, loading, model } = props;
-
+  const renderMessage = (props: TChatMessage) => {
     return (
-      <div className="flex flex-col gap-1 items-start w-full" key={id}>
+      <div className="flex flex-col gap-1 items-end w-full">
         {props.props?.context && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{
-              opacity: 1,
-              transition: { duration: 1, ease: "easeInOut" },
-            }}
-            className="bg-zinc-800 text-zinc-200 dark:bg-black/30 bg-transparent rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent"
-          >
+          <div className="bg-black/10 text-zinc-600 dark:bg-black/30 rounded-2xl p-2 pl-3 text-sm flex flex-row gap-2 pr-4 border hover:border-white/5 border-transparent">
             <ArrowElbowDownRight
               size={20}
               weight="fill"
@@ -75,7 +61,7 @@ export const ChatMessages = () => {
             <span className="pt-[0.35em] pb-[0.25em] leading-6">
               {props.props?.context}
             </span>
-          </motion.div>
+          </div>
         )}
         {props?.props?.image && (
           <Image
@@ -83,22 +69,16 @@ export const ChatMessages = () => {
             alt="uploaded image"
             width={0}
             height={0}
+            sizes="50vw"
             className="rounded-2xl min-w-[120px] h-[120px] border border-white/5 rotate-6 shadow-md object-cover"
           />
         )}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{
-            opacity: 1,
-            transition: { duration: 1, ease: "easeInOut" },
-          }}
-          className="bg-zinc-800 text-zinc-200 dark:bg-black/30 bg-transparent rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4"
-        >
-          <Avatar name="Chat" size="sm" />
+        <div className="bg-black/10 text-zinc-600 dark:bg-black/30 rounded-2xl p-2 text-sm flex flex-row gap-2 pr-4">
           <span className="pt-[0.20em] pb-[0.15em] leading-6">
-            {humanMessage}
+            {props.rawHuman}
           </span>
-        </motion.div>
+        </div>
+
         <AIMessageBubble {...props} />
       </div>
     );
@@ -118,26 +98,21 @@ export const ChatMessages = () => {
     {}
   );
 
+  console.log(messagesByDate);
+
   return (
     <div
+      className="flex flex-col w-full items-center h-screen overflow-y-auto pt-[60px] pb-[200px] no-scrollbar"
       ref={chatContainer}
       id="chat-container"
-      className="flex flex-col no-scrollbar w-full items-center h-screen overflow-y-auto pt-[60px] pb-[200px]"
     >
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          transition: { duration: 1, ease: "easeInOut" },
-        }}
-        className="w-[620px] flex flex-col gap-8"
-      >
-        {messagesByDate &&
+      <div className="w-[700px] flex flex-col gap-24">
+        {/* {messagesByDate &&
           Object.keys(messagesByDate).map((date) => {
             return (
               <div className="flex flex-col" key={date}>
                 <LabelDivider label={getRelativeDate(date)} />
-                <div className="flex flex-col gap-4 w-full items-start">
+                <div className="flex flex-col gap-8 w-full items-start">
                   {messagesByDate[date].map((message) =>
                     renderMessage({
                       id: message.id,
@@ -151,9 +126,13 @@ export const ChatMessages = () => {
                 </div>
               </div>
             );
-          })}
+          })} */}
 
-        {isLastStreamBelongsToCurrentSession &&
+        <div className="flex flex-col gap-8 w-full items-start">
+          {currentSession?.messages?.map((message) => renderMessage(message))}
+        </div>
+
+        {/* {isLastStreamBelongsToCurrentSession &&
           streamingMessage?.props?.query &&
           !streamingMessage?.error &&
           renderMessage({
@@ -164,14 +143,15 @@ export const ChatMessages = () => {
             model: streamingMessage?.model,
             loading: streamingMessage?.loading,
           })}
+
         {streamingMessage?.error && (
           <Alert variant="destructive">
             <Warning size={20} weight="bold" />
             <AlertTitle>Ahh! something went wrong</AlertTitle>
             <AlertDescription>{streamingMessage?.error}</AlertDescription>
           </Alert>
-        )}
-      </motion.div>
+        )} */}
+      </div>
     </div>
   );
 };

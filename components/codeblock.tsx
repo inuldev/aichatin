@@ -1,9 +1,11 @@
 import hljs from "highlight.js";
 import { useEffect, useRef } from "react";
-import { CheckIcon, CopyIcon } from "@radix-ui/react-icons";
+import { Check, Copy } from "@phosphor-icons/react";
+
+import { ibmPlex } from "@/app/fonts";
+import { useClipboard } from "@/hooks/use-clipboard";
 
 import { Button } from "./ui/button";
-import { useClipboard } from "@/hooks/use-clipboard";
 import { Tooltip } from "./ui/tooltip";
 
 export type codeBlockProps = {
@@ -29,18 +31,22 @@ export const CodeBlock = ({ lang, code }: codeBlockProps) => {
         <p className="text-xs px-2 text-zinc-500">{language}</p>
         <Tooltip content={showCopied ? "Copied" : "Copy"}>
           <Button
-            size={"sm"}
-            variant={"secondary"}
+            size={"iconSm"}
+            variant={"ghost"}
             onClick={() => code && copy(code)}
           >
-            {showCopied ? <CheckIcon /> : <CopyIcon />}
-            {showCopied ? "Copied" : "Copy"}
+            {showCopied ? (
+              <Check size={16} weight="bold" />
+            ) : (
+              <Copy size={16} weight="bold" />
+            )}
           </Button>
         </Tooltip>
       </div>
-      <pre className="w-full">
+      <pre className="w-full px-6 py-2">
         <code
-          className={`hljs language-${language} whitespace-pre-wrap break-words overflow-x-auto w-full inline-block pr-[100%] text-sm`}
+          style={ibmPlex.style}
+          className={`hljs language-${language} tracking-wide whitespace-pre-wrap break-words overflow-x-auto w-full inline-block pr-[100%] text-sm`}
           ref={ref}
         />
       </pre>

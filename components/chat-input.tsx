@@ -24,6 +24,7 @@ import {
 } from "@phosphor-icons/react";
 
 import { cn } from "@/lib/utils";
+import { examplePrompts } from "@/lib/prompts";
 import { slideUpVariant } from "@/lib/framer-motion";
 import { useFilters } from "@/context/filter/context";
 import { useModelList } from "@/hooks/use-model-list";
@@ -51,7 +52,6 @@ import {
 import { ModelSelect } from "./model-select";
 import { ChatExamples } from "./chat-examples";
 import { ChatGreeting } from "./chat-greeting";
-import { examplePrompts } from "@/lib/prompts";
 
 export type TAttachment = {
   file?: File;
@@ -60,28 +60,31 @@ export type TAttachment = {
 
 export const ChatInput = () => {
   const { sessionId } = useParams();
-  const [inputValue, setInputValue] = useState("");
   const { open: openFilters } = useFilters();
-  const { showPopup, selectedText, handleClearSelection } = useTextSelection();
   const { showButton, scrollToBottom } = useScrollToBottom();
-  const [contextValue, setContextValue] = useState<string>("");
-  const {
-    runModel,
-    currentSession,
-    createSession,
-    streamingMessage,
-    stopGeneration,
-  } = useChatContext();
   const router = useRouter();
   const { startRecording, stopRecording, recording, text, transcribing } =
     useRecordVoice();
-
-  const isNewSession =
-    !currentSession?.messages?.length && !streamingMessage?.loading;
-
-  const inputRef = useRef<HTMLInputElement>(null);
+  const { runModel, currentSession, createSession, streaming, stopGeneration } =
+    useChatContext();
+  const [inputValue, setInputValue] = useState("");
+  const [contextValue, setContextValue] = useState<string>("");
+  const { getPreferences, getApiKey } = usePreferences();
+  const { getModelByKey } = useModelList();
+  const { open: openSettings } = useSettings();
+  const { showPopup, selectedText, handleClearSelection } = useTextSelection();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [commandInput, setCommandInput] = useState("");
   const [open, setOpen] = useState(false);
   const [attachment, setAttachment] = useState<TAttachment>();
+
+  const focusToInput = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      const len = inputRef.current.value.length;
+      inputRef.current.setSelectionRange(len, len);
+    }
+  };
 
   const resizeFile = (file: File) =>
     new Promise((resolve) => {
@@ -131,16 +134,6 @@ export const ChatInput = () => {
   const handleFileSelect = () => {
     document.getElementById("fileInput")?.click();
   };
-
-  const { getPreferences, getApiKey } = usePreferences();
-  const { getModelByKey } = useModelList();
-  const { open: openSettings } = useSettings();
-
-  useEffect(() => {
-    if (sessionId) {
-      inputRef?.current?.focus();
-    }
-  }, [sessionId]);
 
   const handleRunModel = (query?: string) => {
     if (!query && !inputValue) {
@@ -195,6 +188,14 @@ export const ChatInput = () => {
   };
 
   useEffect(() => {
+    if (sessionId) {
+      inputRef?.current?.focus();
+    }
+  }, [sessionId]);
+
+  const isNewSession = !currentSession?.messages?.length;
+
+  useEffect(() => {
     if (text) {
       setInputValue(text);
       runModel(
@@ -209,24 +210,44 @@ export const ChatInput = () => {
     }
   }, [text]);
 
-  const renderStopButton = () => {
-    if (streamingMessage?.loading) {
+  const renderRecordingControls = () => {
+    if (recording) {
       return (
-        <motion.span
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0, opacity: 0 }}
-        >
+        <>
           <Button
-            onClick={() => stopGeneration()}
-            variant={"secondary"}
-            size={"sm"}
+            variant={"ghost"}
+            size={"icon"}
+            onClick={() => {
+              stopRecording();
+            }}
+            onTouchStart={startRecording}
+            onTouchEnd={stopRecording}
           >
-            <Stop size={20} weight={"bold"} />
+            <StopCircle size={20} weight="fill" className="text-red-300" />
           </Button>
-        </motion.span>
+        </>
       );
     }
+
+    return (
+      <Tooltip content="Record">
+        <Button
+          size={"icon"}
+          variant={"ghost"}
+          className="min-w-8 h-8"
+          onClick={() => {
+            startRecording();
+            setTimeout(() => {
+              stopRecording();
+            }, 20000);
+          }}
+          onTouchStart={startRecording}
+          onTouchEnd={stopRecording}
+        >
+          <Microphone size={20} weight="bold" />
+        </Button>
+      </Tooltip>
+    );
   };
 
   const renderNewSession = () => {
@@ -296,41 +317,21 @@ export const ChatInput = () => {
     }
   };
 
-  const renderRecordingControls = () => {
-    if (recording) {
-      <>
-        <Button
-          variant={"ghost"}
-          size={"icon"}
-          onClick={() => {
-            stopRecording();
-          }}
-          onTouchStart={startRecording}
-          onTouchEnd={stopRecording}
-        >
-          <StopCircle size={20} weight="fill" className="text-red-300" />
-        </Button>
-      </>;
-    }
-
+  const renderStopButton = () => {
     return (
-      <Tooltip content="Record">
+      <motion.span
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0, opacity: 0 }}
+      >
         <Button
-          size={"icon"}
-          variant={"ghost"}
-          className="min-w-8 h-8"
-          onClick={() => {
-            startRecording();
-            setTimeout(() => {
-              stopRecording();
-            }, 20000);
-          }}
-          onTouchStart={startRecording}
-          onTouchEnd={stopRecording}
+          onClick={() => stopGeneration()}
+          variant={"secondary"}
+          size={"sm"}
         >
-          <Microphone size={20} weight="bold" />
+          <Stop size={20} weight={"bold"} />
         </Button>
-      </Tooltip>
+      </motion.span>
     );
   };
 
@@ -452,6 +453,7 @@ export const ChatInput = () => {
                 <TextareaAutosize
                   minRows={1}
                   maxRows={6}
+                  ref={inputRef}
                   placeholder="Ask me anything..."
                   value={inputValue}
                   autoComplete="off"
@@ -461,6 +463,7 @@ export const ChatInput = () => {
                       setOpen(true);
                     }
                     setInputValue(e.currentTarget.value);
+                    focusToInput();
                   }}
                   onKeyDown={handleKeyDown}
                   className="px-2 py-1.5 w-full text-sm leading-5 tracking-[0.01em] border-none resize-none bg-transparent outline-none no-scrollbar"
@@ -497,7 +500,21 @@ export const ChatInput = () => {
           </PopoverAnchor>
           <PopoverContent className="w-[700px] p-0 rounded-2xl overflow-hidden">
             <CMDKCommand>
-              <CommandInput placeholder="Search prompts..." className="h-9" />
+              <CommandInput
+                placeholder="Search..."
+                className="h-9"
+                value={commandInput}
+                onValueChange={setCommandInput}
+                onKeyDown={(e) => {
+                  if (
+                    (e.key === "Delete" || e.key === "Backspace") &&
+                    !commandInput
+                  ) {
+                    setOpen(false);
+                    focusToInput();
+                  }
+                }}
+              />
               <CommandEmpty>No prompt found.</CommandEmpty>
               <CommandList className="p-1">
                 {examplePrompts?.map((example, index) => (

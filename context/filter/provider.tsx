@@ -13,8 +13,7 @@ import {
   TrashSimple,
 } from "@phosphor-icons/react";
 
-import { FiltersContext } from "./context";
-import { useChatContext } from "../chat/context";
+import { cn } from "@/lib/utils";
 import { useChatSession } from "@/hooks/use-chat-session";
 import {
   CommandDialog,
@@ -24,6 +23,9 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+
+import { FiltersContext } from "./context";
+import { useChatContext } from "../chat/context";
 
 export type TFiltersProvider = {
   children: React.ReactNode;
@@ -152,7 +154,12 @@ export const FiltersProvider = ({ children }: TFiltersProvider) => {
               <CommandItem
                 key={session.id}
                 value={`${session.id}/${session.title}`}
-                className="gap-3 w-full"
+                className={
+                  (cn("gap-3 w-full"),
+                  currentSession?.id === session.id
+                    ? "bg-black/10 dark:bg-black/10"
+                    : "")
+                }
                 onSelect={(value) => {
                   router.push(`/chat/${session.id}`);
                   dismiss();

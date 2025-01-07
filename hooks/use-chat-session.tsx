@@ -34,14 +34,15 @@ export type PromptProps = {
 export type TChatMessage = {
   id: string;
   model: TModelKey;
-  human: HumanMessage;
-  ai: AIMessage;
-  rawHuman: string;
-  rawAI: string;
-  props?: PromptProps;
+  rawHuman?: string;
+  rawAI?: string;
+  sessionId: string;
+  isLoading: boolean;
+  hasError: boolean;
+  errorMessage?: string;
   image?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  props?: PromptProps;
+  createdAt: string;
 };
 
 export type TChatSession = {
