@@ -3,13 +3,14 @@ import Markdown from "marked-react";
 import { motion } from "framer-motion";
 
 import { CodeBlock } from "@/components/codeblock";
+import { LinkBlock } from "@/components/ui/link-block";
 
 const variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      duration: 1,
+      duration: 3,
       ease: "easeInOut",
       delay: 0.1,
     },
@@ -37,20 +38,13 @@ export const useMarkdown = () => {
           heading: (children, level) => {
             const Heading = `h${level}` as keyof JSX.IntrinsicElements;
             return (
-              <Heading className="font-medium text-md">{children}</Heading>
+              <Heading key={level} className="font-medium text-md">
+                {children}
+              </Heading>
             );
           },
           link: (href, text) => {
-            return (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                {text}
-              </a>
-            );
+            return <LinkBlock url={href} />;
           },
           blockquote: (children) => (
             <div>
