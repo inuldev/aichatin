@@ -10,8 +10,10 @@ export type TBaseModel = "openai" | "anthropic" | "gemini";
 
 export type TModelKey =
   | "gpt-4o"
+  | "gpt-4"
   | "gpt-4-turbo"
   | "gpt-3.5-turbo"
+  | "gpt-3.5-turbo-instruct"
   | "gpt-3.5-turbo-0125"
   | "claude-3-opus-20240229"
   | "claude-3-sonnet-20240229"
@@ -27,6 +29,8 @@ export type TModel = {
   icon: () => JSX.Element;
   tokens: number;
   baseModel: TBaseModel;
+  inputPrice?: number;
+  outputPrice?: number;
 };
 
 export const useModelList = () => {
@@ -80,6 +84,8 @@ export const useModelList = () => {
       name: "GPT 4o",
       key: "gpt-4o",
       tokens: 128000,
+      inputPrice: 5,
+      outputPrice: 15,
       icon: () => <ModelIcon type="gpt4" size="md" />,
       baseModel: "openai",
       isNew: true,
@@ -88,6 +94,18 @@ export const useModelList = () => {
       name: "GPT4 Turbo",
       key: "gpt-4-turbo",
       tokens: 128000,
+      inputPrice: 10,
+      outputPrice: 30,
+      isNew: false,
+      icon: () => <ModelIcon type="gpt4" size="md" />,
+      baseModel: "openai",
+    },
+    {
+      name: "GPT4",
+      key: "gpt-4",
+      tokens: 128000,
+      inputPrice: 30,
+      outputPrice: 60,
       isNew: false,
       icon: () => <ModelIcon type="gpt4" size="md" />,
       baseModel: "openai",
@@ -96,6 +114,8 @@ export const useModelList = () => {
       name: "GPT3.5 Turbo",
       key: "gpt-3.5-turbo",
       tokens: 16385,
+      inputPrice: 0.5,
+      outputPrice: 1.5,
       isNew: false,
       icon: () => <ModelIcon type="gpt3" size="md" />,
       baseModel: "openai",
@@ -104,6 +124,18 @@ export const useModelList = () => {
       name: "GPT3.5 Turbo 0125",
       key: "gpt-3.5-turbo-0125",
       tokens: 16385,
+      inputPrice: 0.5,
+      outputPrice: 1.5,
+      isNew: false,
+      icon: () => <ModelIcon type="gpt3" size="md" />,
+      baseModel: "openai",
+    },
+    {
+      name: "GPT3.5 Turbo Instruct",
+      key: "gpt-3.5-turbo-instruct",
+      tokens: 16385,
+      inputPrice: 1.5,
+      outputPrice: 2,
       isNew: false,
       icon: () => <ModelIcon type="gpt3" size="md" />,
       baseModel: "openai",
@@ -112,6 +144,8 @@ export const useModelList = () => {
       name: "Claude 3 Opus",
       key: "claude-3-opus-20240229",
       tokens: 10000,
+      inputPrice: 15,
+      outputPrice: 75,
       isNew: false,
       icon: () => <ModelIcon type="anthropic" size="md" />,
       baseModel: "anthropic",
@@ -120,6 +154,8 @@ export const useModelList = () => {
       name: "Claude 3 Sonnet",
       key: "claude-3-sonnet-20240229",
       tokens: 20000,
+      inputPrice: 3,
+      outputPrice: 15,
       isNew: false,
       icon: () => <ModelIcon type="anthropic" size="md" />,
       baseModel: "anthropic",
@@ -128,6 +164,8 @@ export const useModelList = () => {
       name: "Claude 3 Haiku",
       key: "claude-3-haiku-20240307",
       tokens: 20000,
+      inputPrice: 0.25,
+      outputPrice: 1.5,
       isNew: false,
       icon: () => <ModelIcon type="anthropic" size="md" />,
       baseModel: "anthropic",
@@ -137,6 +175,8 @@ export const useModelList = () => {
       name: "Gemini Pro 1.5",
       key: "gemini-1.5-pro-latest",
       tokens: 200000,
+      inputPrice: 3.5,
+      outputPrice: 10.5,
       isNew: true,
       icon: () => <ModelIcon type="gemini" size="md" />,
       baseModel: "gemini",
@@ -145,6 +185,8 @@ export const useModelList = () => {
       name: "Gemini Pro",
       key: "gemini-pro",
       tokens: 200000,
+      inputPrice: 0.5,
+      outputPrice: 1.5,
       isNew: false,
       icon: () => <ModelIcon type="gemini" size="md" />,
       baseModel: "gemini",
@@ -153,6 +195,8 @@ export const useModelList = () => {
       name: "Gemini Flash 1.5",
       key: "gemini-1.5-flash-latest",
       tokens: 200000,
+      inputPrice: 0.35,
+      outputPrice: 1.05,
       isNew: false,
       icon: () => <ModelIcon type="gemini" size="md" />,
       baseModel: "gemini",
