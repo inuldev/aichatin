@@ -207,9 +207,21 @@ export const useModelList = () => {
     return models.find((model) => model.key === key);
   };
 
+  const getTestModelKey = (key: TBaseModel): TModelKey => {
+    switch (key) {
+      case "openai":
+        return "gpt-4o";
+      case "anthropic":
+        return "claude-3-sonnet-20240229";
+      case "gemini":
+        return "gemini-pro";
+    }
+  };
+
   return {
     models,
     createInstance,
     getModelByKey,
+    getTestModelKey,
   };
 };

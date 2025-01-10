@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
+import { ArrowRight, Info } from "@phosphor-icons/react";
 
+import { useLLMTest } from "@/hooks/use-llm-test";
 import { usePreferences } from "@/hooks/use-preferences";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { ArrowRight, Info } from "@phosphor-icons/react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 export const GeminiSettings = () => {
   const [key, setKey] = useState<string>("");
   const { getApiKey, setApiKey } = usePreferences();
+  const { renderTestButton } = useLLMTest();
 
   useEffect(() => {
     getApiKey("gemini").then((key) => {
@@ -46,6 +48,7 @@ export const GeminiSettings = () => {
       >
         Get your API key here <ArrowRight size={16} weight="bold" />
       </Button>
+      {renderTestButton("gemini")}
       <Alert variant={"success"}>
         <Info className="h-4 w-4" />
         <AlertTitle>Attention!</AlertTitle>

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { usePreferences } from "./use-preferences";
 import { blobToBase64, createMediaStream } from "@/lib/record";
+import { useToast } from "./use-toast";
 
 interface UseRecordVoiceResult {
   recording: boolean;
@@ -20,10 +21,12 @@ export const useRecordVoice = (): UseRecordVoiceResult => {
     null
   );
 
+  const { toast } = useToast();
+  const { getApiKey } = usePreferences();
+
   const [recording, setRecording] = useState<boolean>(false);
   const [transcribing, setTranscribing] = useState<boolean>(false);
 
-  const { getApiKey } = usePreferences();
   const isRecording = useRef<boolean>(false);
   const chunks = useRef<Blob[]>([]);
 
@@ -67,8 +70,14 @@ export const useRecordVoice = (): UseRecordVoiceResult => {
       setTranscribing(false);
       setText(transcription?.text);
     } catch (error) {
-      setTranscribing(false);
       console.error(error);
+      toast({
+        title: "Failed to transcribe",
+        description: "Something went wrong. Check your API key and try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setTranscribing(false);
     }
   };
 

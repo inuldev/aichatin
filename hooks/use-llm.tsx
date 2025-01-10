@@ -11,9 +11,10 @@ import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import type { Serialized } from "@langchain/core/load/serializable";
 import { RunnableLike, RunnableSequence } from "@langchain/core/runnables";
 
-import { PromptProps, TChatMessage, useChatSession } from "./use-chat-session";
-import { defaultPreferences, usePreferences } from "./use-preferences";
+import { useToast } from "./use-toast";
 import { TModelKey, useModelList } from "./use-model-list";
+import { defaultPreferences, usePreferences } from "./use-preferences";
+import { PromptProps, TChatMessage, useChatSession } from "./use-chat-session";
 
 export type TUseLLM = {
   onInit: (props: TChatMessage) => Promise<void>;
@@ -40,8 +41,9 @@ export const useLLM = ({
   const { getSessionById, addMessageToSession, sortMessages } =
     useChatSession();
   const { getApiKey, getPreferences } = usePreferences();
-  const { createInstance, getModelByKey } = useModelList();
+  const { createInstance, getModelByKey, getTestModelKey } = useModelList();
   const abortController = new AbortController();
+  const { toast } = useToast();
 
   const stopGeneration = () => {
     abortController.abort();
@@ -267,6 +269,11 @@ export const useLLM = ({
       });
     } catch (err) {
       console.error(err);
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive",
+      });
       onError({
         props,
         id: newMessageId,

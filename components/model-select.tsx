@@ -44,7 +44,7 @@ export const ModelSelect = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="min-w-[250px] text-sm max-h-[260px] overflow-y-auto no-scrollbar">
           {models.map((model) => (
-            <DropdownMenuSub>
+            <DropdownMenuSub key={model.key}>
               <DropdownMenuSubTrigger>
                 <DropdownMenuItem
                   className={cn(
@@ -64,23 +64,25 @@ export const ModelSelect = () => {
                 </DropdownMenuItem>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="">
-                  <div>
+                <DropdownMenuSubContent className="dark bg-zinc-900 p-4 flex flex-col gap-3 tracking-[0.1px] text-sm rounded-xl min-w-[200px]">
+                  <div className="flex flex-row gap-2">
                     {model.icon()} {model.name}
                   </div>
-                  <div>
-                    <p>Tokens</p>
-                    <p>{formatNumber(model.tokens)} tokens</p>
+                  <div className="flex flex-row justify-between text-xs text-zinc-500">
+                    <p>Tokens</p> <p>{formatNumber(model.tokens)} tokens</p>
+                  </div>
+                  <div className="flex flex-row justify-between text-xs text-zinc-500">
+                    <p>Model</p> <p>{model.key}</p>
                   </div>
                   {model.inputPrice && (
-                    <div>
-                      <p>Input Price</p>
+                    <div className="flex flex-row justify-between text-xs text-zinc-500">
+                      <p>Input Price</p>{" "}
                       <p>{model.inputPrice} USD / 1M tokens</p>
                     </div>
                   )}
                   {model.outputPrice && (
-                    <div>
-                      <p>Output Price</p>
+                    <div className="flex flex-row justify-between text-xs text-zinc-500">
+                      <p>Output Price</p>{" "}
                       <p>{model.outputPrice} USD / 1M tokens</p>
                     </div>
                   )}

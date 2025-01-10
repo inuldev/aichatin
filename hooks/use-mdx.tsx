@@ -37,8 +37,14 @@ export const useMarkdown = () => {
           ),
           heading: (children, level) => {
             const Heading = `h${level}` as keyof JSX.IntrinsicElements;
+            const headingKey = `heading-${level}-${String(children).slice(
+              0,
+              20
+            )}`;
             return (
-              <Heading className="font-medium text-md">{children}</Heading>
+              <Heading key={headingKey} className="font-medium text-md">
+                {children}
+              </Heading>
             );
           },
           link: (href, text) => {

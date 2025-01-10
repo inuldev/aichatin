@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
+import { ArrowRight, Info } from "@phosphor-icons/react";
 
+import { useLLMTest } from "@/hooks/use-llm-test";
 import { usePreferences } from "@/hooks/use-preferences";
+
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { ArrowRight, Info } from "@phosphor-icons/react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 export const OpenAISettings = () => {
   const [key, setKey] = useState<string>("");
   const { getApiKey, setApiKey } = usePreferences();
+  const { renderTestButton } = useLLMTest();
 
   useEffect(() => {
     getApiKey("openai").then((key) => {
@@ -46,6 +49,7 @@ export const OpenAISettings = () => {
       >
         Get your API key here <ArrowRight size={16} weight="bold" />
       </Button>
+      {renderTestButton("openai")}
       <Alert variant={"success"}>
         <Info size={16} weight="bold" />
         <AlertTitle>Attention!</AlertTitle>
