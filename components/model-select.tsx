@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { usePreferences } from "@/hooks/use-preferences";
+import { defaultPreferences, usePreferences } from "@/hooks/use-preferences";
 import { TModelKey, useModelList } from "@/hooks/use-model-list";
 
 import { Badge } from "./ui/badge";
@@ -19,6 +19,7 @@ import {
 } from "./ui/dropdown-menu";
 import { formatNumber } from "@/lib/helper";
 import { GearSix } from "@phosphor-icons/react";
+import { ModelInfo } from "./model-info";
 
 export const ModelSelect = () => {
   const [selectedModel, setSelectedModel] = useState<TModelKey>("gpt-4-turbo");
@@ -53,7 +54,10 @@ export const ModelSelect = () => {
                   )}
                   key={model.key}
                   onClick={() => {
-                    setPreferences({ defaultModel: model.key }).then(() => {
+                    setPreferences({
+                      defaultModel: model.key,
+                      maxTokens: defaultPreferences.maxTokens,
+                    }).then(() => {
                       setSelectedModel(model.key);
                       setIsOpen(false);
                     });
@@ -65,27 +69,7 @@ export const ModelSelect = () => {
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent className="dark bg-zinc-900 p-4 flex flex-col gap-3 tracking-[0.1px] text-sm rounded-xl min-w-[200px]">
-                  <div className="flex flex-row gap-2">
-                    {model.icon()} {model.name}
-                  </div>
-                  <div className="flex flex-row justify-between text-xs text-zinc-500">
-                    <p>Tokens</p> <p>{formatNumber(model.tokens)} tokens</p>
-                  </div>
-                  <div className="flex flex-row justify-between text-xs text-zinc-500">
-                    <p>Model</p> <p>{model.key}</p>
-                  </div>
-                  {model.inputPrice && (
-                    <div className="flex flex-row justify-between text-xs text-zinc-500">
-                      <p>Input Price</p>{" "}
-                      <p>{model.inputPrice} USD / 1M tokens</p>
-                    </div>
-                  )}
-                  {model.outputPrice && (
-                    <div className="flex flex-row justify-between text-xs text-zinc-500">
-                      <p>Output Price</p>{" "}
-                      <p>{model.outputPrice} USD / 1M tokens</p>
-                    </div>
-                  )}
+                  <ModelInfo model={model} />
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
@@ -93,7 +77,7 @@ export const ModelSelect = () => {
           <DropdownMenuSeparator />
           <DropdownMenuItem key={"manage"} onClick={() => {}}>
             <div>
-              <GearSix size={16} weight="fill" />
+              <GearSix size={16} weight="bold" />
             </div>
             Manage Models
           </DropdownMenuItem>

@@ -5,6 +5,7 @@ import { Check, Copy, Info, TrashSimple } from "@phosphor-icons/react";
 import { useMarkdown } from "@/hooks/use-mdx";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { TModelKey, useModelList } from "@/hooks/use-model-list";
+import { useSettings } from "@/context/settings/contex";
 import { useChatContext } from "@/context/chat/context";
 import { TChatMessage } from "@/hooks/use-chat-session";
 
@@ -47,6 +48,7 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
   };
 
   const tokenCount = getTokenCount({ model, rawAI });
+  const { open: openSettings } = useSettings();
 
   return (
     <div className="flex flex-row gap-2 mt-6 w-full">
@@ -62,8 +64,18 @@ export const AIMessageBubble = ({ chatMessage, isLast }: TAIMessageBubble) => {
         )}
         {errorMessage && (
           <Alert variant="destructive">
-            <AlertTitle>Something went wrong</AlertTitle>
-            <AlertDescription>{errorMessage}</AlertDescription>
+            <AlertDescription>
+              Something went wrong. Make sure your API key is working.
+              <Button
+                variant={"link"}
+                size={"link"}
+                onClick={() => {
+                  openSettings();
+                }}
+              >
+                Check API Key
+              </Button>
+            </AlertDescription>
           </Alert>
         )}
 

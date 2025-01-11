@@ -1,8 +1,7 @@
-import { useEffect } from "react";
-import { useFormik } from "formik";
 import { Info } from "@phosphor-icons/react";
 
-import { defaultPreferences, usePreferences } from "@/hooks/use-preferences";
+import { defaultPreferences } from "@/hooks/use-preferences";
+import { useModelSettings } from "@/hooks/use-model-settings";
 
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -11,45 +10,10 @@ import { Slider } from "../ui/slider";
 import { Textarea } from "../ui/textarea";
 
 export const CommonSettings = () => {
-  const { getPreferences, setPreferences } = usePreferences();
-
-  const formik = useFormik({
-    initialValues: {
-      systemPrompt: "",
-      messageLimit: "all",
-      temperature: 0.5,
-      topP: 1.0,
-      topK: 5,
-      maxTokens: 1000,
-    },
-    onSubmit: (values) => {},
-  });
-
-  useEffect(() => {
-    getPreferences().then((preferences) => {
-      formik.setFieldValue(
-        "systemPrompt",
-        preferences.systemPrompt || defaultPreferences.systemPrompt
-      );
-      formik.setFieldValue(
-        "messageLimit",
-        preferences.messageLimit || defaultPreferences.messageLimit
-      );
-      formik.setFieldValue(
-        "temperature",
-        preferences.temperature || defaultPreferences.temperature
-      );
-      formik.setFieldValue("topP", preferences.topP || defaultPreferences.topP);
-      formik.setFieldValue("topK", preferences.topK || defaultPreferences.topK);
-      formik.setFieldValue(
-        "maxTokens",
-        preferences.maxTokens || defaultPreferences.maxTokens
-      );
-    });
-  }, []);
+  const { formik, setPreferences } = useModelSettings({});
 
   return (
-    <div className="flex flex-col items-start px-6 pb-12 gap-2 max-h-[500px] overflow-y-auto no-scrollbar">
+    <div className="px-6 pb-12 flex flex-col items-start gap-2 max-h-[500px] overflow-y-auto no-scrollbar">
       <p className="text-md font-medium text-zinc-600 dark:text-white py-4">
         Default Settings
       </p>

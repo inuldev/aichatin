@@ -492,7 +492,7 @@ export const ChatInput = () => {
   return (
     <div
       className={cn(
-        "w-full flex flex-col items-center justify-center absolute bottom-0 px-4 pb-4 pt-16 bg-gradient-to-t from-zinc-50 dark:from-zinc-800 to-transparent from-70% left-0 right-0 gap-2",
+        "w-full flex flex-col items-center justify-center absolute bottom-0 px-4 pb-4 pt-16 bg-gradient-to-t transition-all ease-in-out duration-1000 from-white dark:from-zinc-800 to-transparent from-70% left-0 right-0 gap-2",
         isNewSession && "top-0"
       )}
     >
@@ -512,7 +512,7 @@ export const ChatInput = () => {
               variants={slideUpVariant}
               initial={"initial"}
               animate={editor?.isActive ? "animate" : "initial"}
-              className="flex flex-col items-start gap-0 bg-white shadow-sm border-black/10 dark:bg-white/5 border dark:border-white/5 w-[700px] rounded-[1.25em] overflow-hidden"
+              className="flex flex-col items-start gap-0 bg-zinc-100 dark:bg-white/5 dark:border-white/5 w-[700px] rounded-[1.25em] overflow-hidden"
             >
               {selectedPrompt && (
                 <div className="px-1 pt-1 w-full">
@@ -549,9 +549,9 @@ export const ChatInput = () => {
                   <ArrowUp size={20} weight="bold" />
                 </Button>
               </div>
-              <div className="flex flex-row items-center w-full justify-start gap-2 px-2 pb-2 pt-1">
+              <div className="flex flex-row items-center w-full justify-start gap-0 px-2 pb-2 pt-1">
                 <ModelSelect />
-                {renderFileUpload()}
+
                 <div className="flex-1" />
                 <Button
                   variant={"ghost"}
@@ -605,12 +605,14 @@ export const ChatInput = () => {
           </PopoverContent>
         </Popover>
       </div>
-      <ChatExamples
-        show={isNewSession}
-        onExampleClick={(prompt) => {
-          handleRunModel(prompt);
-        }}
-      />
+      <div className="flex flex-col justify-center items-center">
+        <ChatExamples
+          show={isNewSession}
+          onExampleClick={(prompt) => {
+            handleRunModel(prompt);
+          }}
+        />
+      </div>
     </div>
   );
 };
